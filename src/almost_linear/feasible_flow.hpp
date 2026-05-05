@@ -1,5 +1,5 @@
 #pragma once
-#include "../min_cost_flow_instance.hpp"
+#include "min_cost_flow_instance.hpp"
 #include <Eigen/Dense>
 #include <utility>
 

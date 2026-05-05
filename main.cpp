@@ -8,12 +8,13 @@
  *   ./maxflow -cs <dataset|file.max>
  *   ./maxflow -fullsuite
  *
- * Differenze rispetto al Python:
+ * Note rispetto al Python:
  *   - La configurazione TOML viene letta da configs/configmain.toml tramite
  *     un parser minimale (nessuna dipendenza esterna: solo std).
- *   - Solo PushRelabel è implementato in questa fase; CapacityScaling e
- *     AlmostLinearTime producono un errore "non ancora portati".
- *   - I Fraction di Python vengono gestiti tramite double + scale_rationals.
+ *   - Tutti e tre gli algoritmi sono supportati: push_relabel, capacity_scaling
+ *     e almost_linear_time.
+ *   - parse_dimacs_safe e format_flow sono funzioni dedicate (come in Python).
+ *   - I Fraction di Python vengono gestiti tramite Fraction + scale_rationals.
  *   - Il formato del CSV è identico al Python (compreso "%.17f" per i tempi).
  */
 
@@ -35,11 +36,26 @@
 #include <variant>
 #include <vector>
 
-#include "src/util/parsing.hpp"
+//#include "src/util/parsing.hpp"
+//#include "src/push_relabel/push_relabel.hpp"
+//#include "src/util/rattoint.hpp"
+
+
+
+
+#include "src/util/parse_dimacs.hpp"
+#include "src/util/capacity.hpp"
+#include "src/util/fraction.hpp"
+#include "src/util/scale_rationals.hpp"
+
+#include "src/almost_linear/almost_linear_time.hpp"
+#include "src/capacity_scaling/capacity_scaling.hpp"
 #include "src/push_relabel/push_relabel.hpp"
-#include "src/util/rattoint.hpp"
 
 namespace fs = std::filesystem;
+
+// Forward declaration: implementazione in src/util/parse_dimacs.cpp
+DimacsResult parse_dimacs(const std::string& path);
 
 // Type aliases
 using IntGraph = std::unordered_map<std::pair<int,int>, long long, PairHash>;
@@ -198,7 +214,7 @@ struct GraphScaled {
     long long fattore;
 };
 
-static GraphScaled scala_grafo(const ParsedGraph& graph_in) {
+static GraphScaled scala_grafo(const DimacsResult& graph_in) {
     // Controlla se ci sono double (capacità non intere)
     bool has_double = false;
     for (auto& [_, cap] : graph_in.graph)
@@ -208,21 +224,21 @@ static GraphScaled scala_grafo(const ParsedGraph& graph_in) {
         // Tutte intere: converti direttamente
         IntGraph ig;
         for (auto& [edge, cap] : graph_in.graph)
-            ig[edge] = std::get<long long>(cap);
+            ig[edge] = static_cast<long long>(std::get<int>(cap));
         return {std::move(ig), 1LL};
     }
 
     // Estrai i valori come double e scala
     std::vector<std::pair<int,int>> keys;
-    std::vector<double> vals;
+    std::vector<Fraction> vals;
     keys.reserve(graph_in.graph.size());
     vals.reserve(graph_in.graph.size());
     for (auto& [edge, cap] : graph_in.graph) {
         keys.push_back(edge);
-        vals.push_back(std::visit([](auto&& v) -> double {
+        vals.push_back(std::visit([](auto&& v) -> Fraction {
             using T = std::decay_t<decltype(v)>;
-            if constexpr (std::is_same_v<T, Fraction>) return v.to_double();
-            else return static_cast<double>(v);
+            if constexpr (std::is_same_v<T, Fraction>) return v;
+            else return Fraction(static_cast<int>(v), 1);
         }, cap));
     }
 
@@ -242,27 +258,57 @@ static GraphScaled scala_grafo(const ParsedGraph& graph_in) {
 // Restituisce (flow, elapsed_seconds).
 // ──────────────────────────────────────────────────────────────────────────────
 
+//static std::pair<long long, double>
+// esegui_max_flow accetta il DimacsResult originale (non scalato) e il fattore
+// di scala. Ogni solver riceve il tipo di grafo che si aspetta:
+//   PushRelabel      <- IntGraph (long long, gia' scalato)
+//   CapacityScaling  <- map<pair<int,int>, Capacity> (grafo originale)
+//   AlmostLinearTime <- map<pair<int,int>, int>      (interi, fattore applicato)
 static std::pair<long long, double>
-esegui_max_flow(const std::string& algorithm, const IntGraph& graph,
+esegui_max_flow(const std::string& algorithm,
+                const DimacsResult& pg_orig,
+                const IntGraph& int_graph,
+                long long fattore,
                 int source, int sink) {
-    if (algorithm != "push_relabel") {
-        throw std::runtime_error(
-            "Algoritmo '" + algorithm + "' non ancora portato in C++. "
-            "Solo push_relabel è disponibile in questa fase.");
-    }
-
-    PushRelabel solver(graph);
-
     auto t0 = std::chrono::high_resolution_clock::now();
     long long flow = 0;
+
     try {
-        flow = solver.max_flow(source, sink);
+        if (algorithm == "push_relabel") {
+            // PushRelabel lavora sull'IntGraph scalato (long long)
+            PushRelabel solver(int_graph);
+            flow = solver.max_flow(source, sink);
+
+        } else if (algorithm == "capacity_scaling") {
+            // CapacityScaling vuole map<pair<int,int>, Capacity> (grafo originale)
+            CapacityScaling solver(pg_orig.graph);
+            Capacity result = solver.max_flow(source, sink);
+            // Converte il risultato Capacity in long long (scalato se necessario)
+            double d = std::visit([](auto&& v) -> double {
+                using T = std::decay_t<decltype(v)>;
+                if constexpr (std::is_same_v<T, Fraction>) return v.to_double();
+                else return static_cast<double>(v);
+            }, result);
+            flow = static_cast<long long>(std::round(d * static_cast<double>(fattore)));
+
+        } else if (algorithm == "almost_linear_time") {
+            // AlmostLinearTime vuole map<pair<int,int>, int>
+            // Usa l'IntGraph scalato convertito a int (i valori sono gia' interi)
+            std::map<std::pair<int,int>, int> int_map;
+            for (auto& [edge, cap] : int_graph)
+                int_map[edge] = static_cast<int>(cap);
+            AlmostLinearTime solver(int_map);
+            flow = static_cast<long long>(solver.max_flow(source, sink));
+
+        } else {
+            throw std::runtime_error("Algoritmo sconosciuto: '" + algorithm + "'.");
+        }
     } catch (const std::out_of_range&) {
-        std::cout << "Source isolato → flusso = 0\n";
+        std::cout << "Source isolato \xe2\x86\x92 flusso = 0\n";
         flow = 0;
     }
-    auto t1 = std::chrono::high_resolution_clock::now();
 
+    auto t1 = std::chrono::high_resolution_clock::now();
     double elapsed = std::chrono::duration<double>(t1 - t0).count();
     return {flow, elapsed};
 }
@@ -272,6 +318,41 @@ static std::string fmt_time(double t) {
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(17) << t;
     return ss.str();
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// parse_dimacs_safe — traduzione di main.py::parse_dimacs_safe
+// In caso di file mancante o formato errato termina il programma con messaggio.
+// ──────────────────────────────────────────────────────────────────────────────
+
+[[nodiscard]] static DimacsResult parse_dimacs_safe(const std::string& path) {
+    try {
+        return parse_dimacs(path);
+    } catch (const std::runtime_error& e) {
+        std::string what = e.what();
+        // Distingue file mancante da formato errato (come FileNotFoundError vs ValueError in Python)
+        if (what.find("not found") != std::string::npos ||
+            what.find("non trovato") != std::string::npos ||
+            what.find("open") != std::string::npos) {
+            std::cerr << "Errore: file non trovato: \"" << path << "\"\n";
+        } else {
+            std::cerr << "Errore nel parsing di \"" << path << "\": " << what << "\n";
+        }
+        std::exit(1);
+    }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// format_flow — traduzione di main.py::format_flow
+// Restituisce la stringa del flusso: fraz. ridotta se scalato, intero altrimenti.
+// ──────────────────────────────────────────────────────────────────────────────
+
+static std::string format_flow(long long flow, long long fattore) {
+    if (fattore == 1) {
+        return std::to_string(flow);
+    }
+    long long g = std::gcd(flow, fattore);
+    return std::to_string(flow / g) + "/" + std::to_string(fattore / g);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -297,15 +378,10 @@ static void run_benchmark_reale(
         std::string base       = directory + "/" + prefix + std::to_string(i);
         std::string graph_file = prefix + std::to_string(i);
 
-        ParseResult pg;
-        try { pg = parse_dimacs(base + ".max"); }
-        catch (const std::exception& e) {
-            std::cerr << "Errore: " << e.what() << "\n";
-            std::exit(1);
-        }
+        DimacsResult pg = parse_dimacs_safe(base + ".max");
 
         auto [ig, fattore] = scala_grafo(pg);
-        auto [flow, elapsed] = esegui_max_flow(algorithm, ig, pg.source, pg.sink);
+        auto [flow, elapsed] = esegui_max_flow(algorithm, pg, ig, fattore, pg.source, pg.sink);
 
         std::string correctness = "N/A";
         std::string sol_path    = base + ".sol";
@@ -322,7 +398,7 @@ static void run_benchmark_reale(
             std::to_string(pg.n),
             std::to_string(pg.m_actual),
             fmt_time(elapsed),
-            std::to_string(flow),
+            format_flow(flow, fattore),
             graph_file,
             correctness
         });
@@ -398,7 +474,7 @@ static void run_benchmark_sintetico(
                   << ", d=" << e.d << ", n=" << e.n
                   << ", seed=" << e.seed << "): " << e.path << "\n";
 
-        ParseResult pg;
+        DimacsResult pg;
         try { pg = parse_dimacs(e.path); }
         catch (const std::exception& ex) {
             std::cerr << "Errore nel parsing di " << e.path << ": " << ex.what() << "\n";
@@ -412,7 +488,7 @@ static void run_benchmark_sintetico(
         long long flow_value = 0;
 
         for (int r = 0; r < runs_per_instance; ++r) {
-            auto [flow, elapsed] = esegui_max_flow(algorithm, ig, pg.source, pg.sink);
+            auto [flow, elapsed] = esegui_max_flow(algorithm, pg, ig, fattore, pg.source, pg.sink);
             if (r == 0) flow_value = flow;
             times.push_back(elapsed);
         }
@@ -428,14 +504,7 @@ static void run_benchmark_sintetico(
                   << median_time << "s\n";
 
         // Flusso reale (come format_flow in Python)
-        std::string flow_str;
-        if (fattore == 1) {
-            flow_str = std::to_string(flow_value);
-        } else {
-            // Rappresenta come "num/den" (equivalente a Fraction(flow, fattore))
-            long long g = std::gcd(flow_value, fattore);
-            flow_str    = std::to_string(flow_value / g) + "/" + std::to_string(fattore / g);
-        }
+        std::string flow_str = format_flow(flow_value, fattore);
 
         scrivi_riga_csv(csv_path, {
             e.graph_type, e.cap_type,
@@ -459,12 +528,7 @@ static void run_esperimento_singolo(
 {
     init_csv(csv_file, {"n","m","time_seconds","flow","graph_file"});
 
-    ParseResult pg;
-    try { pg = parse_dimacs(graph_file); }
-    catch (const std::exception& e) {
-        std::cerr << "Errore: " << e.what() << "\n";
-        std::exit(1);
-    }
+    DimacsResult pg = parse_dimacs_safe(graph_file);
 
     auto [ig, fattore] = scala_grafo(pg);
 
@@ -472,15 +536,9 @@ static void run_esperimento_singolo(
     std::cout << "Source : " << pg.source << "   Sink : " << pg.sink << "\n";
     std::cout << "Archi  : " << pg.graph.size() << "\n\n";
 
-    auto [flow, elapsed] = esegui_max_flow(algorithm, ig, pg.source, pg.sink);
+    auto [flow, elapsed] = esegui_max_flow(algorithm, pg, ig, fattore, pg.source, pg.sink);
 
-    std::string flow_str;
-    if (fattore == 1) {
-        flow_str = std::to_string(flow);
-    } else {
-        long long g = std::gcd(flow, fattore);
-        flow_str    = std::to_string(flow / g) + "/" + std::to_string(fattore / g);
-    }
+    std::string flow_str = format_flow(flow, fattore);
 
     std::cout << "flow = " << flow << "\n";
     scrivi_riga_csv(csv_file, {

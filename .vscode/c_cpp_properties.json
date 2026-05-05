@@ -4,13 +4,9 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}",
-                "${workspaceFolder}/src",
-                "${workspaceFolder}/src/util",
-                "${workspaceFolder}/src/push_relabel",
-                "${workspaceFolder}/src/almost_linear",
-                "${workspaceFolder}/src/capacity_scaling",
-                "${workspaceFolder}/third_party/eigen-5.0.0",
-                "${default}"
+                "${workspaceFolder}/src/**",
+                "${workspaceFolder}/Eigen",
+                "${workspaceFolder}/Eigen/**"
             ],
             "defines": [
                 "_DEBUG",
@@ -18,10 +14,10 @@
                 "_UNICODE"
             ],
             "windowsSdkVersion": "10.0.26100.0",
-            "compilerPath": "cl.exe",
+            "compilerPath": "C:/MinGW/bin/g++.exe",
             "cStandard": "c17",
             "cppStandard": "c++23",
-            "intelliSenseMode": "windows-msvc-x64"
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4

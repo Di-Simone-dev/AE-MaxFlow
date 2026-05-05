@@ -5,6 +5,9 @@
 #include <sstream>
 #include <numbers>
 
+// ---------------------------------------------------------
+// Funzione di utilità: controlla se la stringa contiene lettere
+// ---------------------------------------------------------
 static bool contains_alpha(const std::string& s) {
     for (char c : s)
         if (std::isalpha(static_cast<unsigned char>(c)))
@@ -12,7 +15,68 @@ static bool contains_alpha(const std::string& s) {
     return false;
 }
 
+// ---------------------------------------------------------
+// Conversione generica a double
+// ---------------------------------------------------------
+double to_double(const Capacity& c) {
+    return std::visit([](auto&& x) -> double {
+        using T = std::decay_t<decltype(x)>;
+
+        if constexpr (std::is_same_v<T, int>)
+            return static_cast<double>(x);
+
+        else if constexpr (std::is_same_v<T, Fraction>)
+            return x.to_double();
+
+        else if constexpr (std::is_same_v<T, double>)
+            return x;
+
+        else
+            static_assert(!sizeof(T*), "Tipo non supportato in Capacity");
+    }, c);
+}
+
+// ---------------------------------------------------------
+// Somma robusta delle capacità
+// ---------------------------------------------------------
+Capacity add_capacity(const Capacity& a, const Capacity& b) {
+    return std::visit([](auto&& x, auto&& y) -> Capacity {
+        using X = std::decay_t<decltype(x)>;
+        using Y = std::decay_t<decltype(y)>;
+
+        // Caso 1: int + int → int
+        if constexpr (std::is_same_v<X,int> && std::is_same_v<Y,int>) {
+            return x + y;
+        }
+
+        // Caso 2: Fraction + Fraction → Fraction
+        else if constexpr (std::is_same_v<X,Fraction> && std::is_same_v<Y,Fraction>) {
+            return x + y;
+        }
+
+        // Caso 3: Fraction + int → Fraction
+        else if constexpr (std::is_same_v<X,Fraction> && std::is_same_v<Y,int>) {
+            return x + Fraction(y, 1);
+        }
+
+        // Caso 4: int + Fraction → Fraction
+        else if constexpr (std::is_same_v<X,int> && std::is_same_v<Y,Fraction>) {
+            return Fraction(x, 1) + y;
+        }
+
+        // Caso 5: tutto il resto → double
+        else {
+            return to_double(x) + to_double(y);
+        }
+
+    }, a, b);
+}
+
+// ---------------------------------------------------------
+// Parsing capacità da stringa DIMACS
+// ---------------------------------------------------------
 Capacity parse_capacity(const std::string& s_raw) {
+    // Rimuove tutti gli spazi
     std::string s;
     for (char c : s_raw)
         if (!std::isspace(static_cast<unsigned char>(c)))
@@ -42,7 +106,6 @@ Capacity parse_capacity(const std::string& s_raw) {
 
         replace("pi", std::to_string(std::numbers::pi));
         replace("e",  std::to_string(std::numbers::e));
-
 
         // Supporto minimo: sqrt(...)
         if (expr.rfind("sqrt(", 0) == 0 && expr.back() == ')') {

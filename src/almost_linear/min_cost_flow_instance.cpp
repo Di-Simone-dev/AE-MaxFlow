@@ -1,4 +1,4 @@
-#include "min_cost_flow_instance.h"
+#include "min_cost_flow_instance.hpp"
 #include <stdexcept>
 #include <numeric>
 

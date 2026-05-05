@@ -69,9 +69,9 @@ std::pair<int, Eigen::VectorXd> AlmostLinearTime::max_flow_with_guess(
     int flow_idx   = original_m - 1;  // indice arco virtuale s→t
 
     // ── Flusso ammissibile iniziale ──────────────────────────────────────
-    auto [I2, cur_flow] = calc_feasible_flow(I);
+    auto [I2, cur_flow] = almost_linear::calc_feasible_flow(I);  //problema di namespace risolto
     I = std::move(I2);
-
+ 
     // ── Parametri dell'algoritmo ─────────────────────────────────────────
     const double threshold = 1e-5;
     const double kappa     = 0.9999;

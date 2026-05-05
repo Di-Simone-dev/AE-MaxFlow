@@ -12,7 +12,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/push_relabel
     ${CMAKE_SOURCE_DIR}/src/almost_linear
     ${CMAKE_SOURCE_DIR}/src/capacity_scaling
-    ${CMAKE_SOURCE_DIR}/third_party/eigen-5.0.0
+    ${CMAKE_SOURCE_DIR}/Eigen
 )
 
 # Main executable

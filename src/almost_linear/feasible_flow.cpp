@@ -1,5 +1,5 @@
-#include "feasible_flow.h"
-#include "min_cost_flow_instance.h"
+#include "feasible_flow.hpp"
+#include "min_cost_flow_instance.hpp"
 #include <Eigen/Dense>
 #include <cassert>
 #include <numeric>
