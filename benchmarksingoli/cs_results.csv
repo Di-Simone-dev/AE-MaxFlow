@@ -1,0 +1,16 @@
+n,m,time_seconds,flow,graph_file
+500,895,0.00357920000000000,1123,.\graphs\pr_cs\int\grid500_d5\grid_n500_d5_seed11.max
+500,895,0.00335490000000000,1123,.\graphs\pr_cs\int\grid500_d5\grid_n500_d5_seed11.max
+500,895,0.00225040000000000,0/1,.\graphs\pr_cs\rational\grid500_d5\grid_n500_d5_seed11.max
+10,13,0.00011520000000000,427,.\grid_n10_d5_seed0.max
+10,13,0.00008610000000000,427/2,.\grid_n10_d5_seed0.max
+10,13,0.00010550000000000,1651/8,.\grid_n10_d5_seed0.max
+10,13,0.00009410000000000,427/2,.\grid_n10_d5_seed0.max
+10,13,0.00007820000000000,1174/19,.\graphs\al\rational\grid10_d5\grid_n10_d5_seed0.max
+10,13,0.00009250000000000,62/1,.\graphs\al\rational\grid10_d5\grid_n10_d5_seed1.max
+10,13,0.00007250000000000,8099/220,.\graphs\al\rational\grid10_d5\grid_n10_d5_seed2.max
+500,895,0.00400060000000000,1003931/14960,.\graphs\pr_cs\rational\grid500_d5\grid_n500_d5_seed0.max
+4000,7195,0.02074050000000000,161170/2907,.\graphs\pr_cs\rational\grid4000_d5\grid_n4000_d5_seed1.max
+4000,7195,0.01732960000000000,1619/30,.\graphs\pr_cs\rational\grid4000_d5\grid_n4000_d5_seed0.max
+4000,7195,0.02042350000000000,10261/190,.\graphs\pr_cs\rational\grid4000_d5\grid_n4000_d5_seed10.max
+4000,7195,0.01666510000000000,19887/380,.\graphs\pr_cs\rational\grid4000_d5\grid_n4000_d5_seed12.max

@@ -92,6 +92,19 @@ Capacity parse_capacity(const std::string& s_raw) {
         return Fraction(num, den);
     }
 
+
+    auto eval_simple = [&](const std::string& t) -> double {
+    // caso a/b
+    size_t pos = t.find('/');
+    if (pos != std::string::npos) {
+        double a = std::stod(t.substr(0, pos));
+        double b = std::stod(t.substr(pos + 1));
+        return a / b;
+    }
+    // numero semplice
+    return std::stod(t);
+    };
+
     // Caso ESPRESSIONE IRRAZIONALE: contiene lettere
     if (contains_alpha(s)) {
         std::string expr = s;
@@ -104,20 +117,70 @@ Capacity parse_capacity(const std::string& s_raw) {
             }
         };
 
-        //sostituiti MinGW 13.2 NON implementa <numbers>
+        // MinGW non supporta <numbers>
         replace("pi", "3.14159265358979323846");
         replace("e",  "2.71828182845904523536");
 
+        // --- Funzioni supportate ---
 
-        // Supporto minimo: sqrt(...)
+        // sqrt(x)
         if (expr.rfind("sqrt(", 0) == 0 && expr.back() == ')') {
             double x = std::stod(expr.substr(5, expr.size() - 6));
             return std::sqrt(x);
         }
 
+        // log(x) = ln(x)
+        if ((expr.rfind("log(", 0) == 0 || expr.rfind("ln(", 0) == 0) && expr.back() == ')') {
+            size_t off = expr[1] == 'o' ? 4 : 3; // log( → 4, ln( → 3
+            double x = std::stod(expr.substr(off, expr.size() - off - 1));
+            return std::log(x);
+        }
+
+        // log10(x)
+        if (expr.rfind("log10(", 0) == 0 && expr.back() == ')') {
+            double x = std::stod(expr.substr(6, expr.size() - 7));
+            return std::log10(x);
+        }
+
+        // log2(x)
+        if (expr.rfind("log2(", 0) == 0 && expr.back() == ')') {
+            double x = eval_simple(expr.substr(5, expr.size() - 6));
+            return std::log2(x);
+        }
+
+        // sin(x)
+        if (expr.rfind("sin(", 0) == 0 && expr.back() == ')') {
+            double x = eval_simple(expr.substr(4, expr.size() - 5));
+            return std::sin(x);
+        }
+
+        // cos(x)
+        if (expr.rfind("cos(", 0) == 0 && expr.back() == ')') {
+            double x = eval_simple(expr.substr(4, expr.size() - 5));
+            return std::cos(x);
+        }
+
+        // tan(x)
+        if (expr.rfind("tan(", 0) == 0 && expr.back() == ')') {
+            double x = eval_simple(expr.substr(4, expr.size() - 5));
+            return std::tan(x);
+        }
+
+        // exp(x)
+        if (expr.rfind("exp(", 0) == 0 && expr.back() == ')') {
+            double x = eval_simple(expr.substr(4, expr.size() - 5));
+            return std::exp(x);
+        }
+
+        // abs(x)
+        if (expr.rfind("abs(", 0) == 0 && expr.back() == ')') {
+            double x = eval_simple(expr.substr(4, expr.size() - 5));
+            return std::abs(x);
+        }
+
         // fallback: prova a convertire come double
         try {
-            return std::stod(expr);
+            return eval_simple(expr);
         } catch (...) {
             throw std::runtime_error("Espressione irrazionale non supportata: " + s);
         }

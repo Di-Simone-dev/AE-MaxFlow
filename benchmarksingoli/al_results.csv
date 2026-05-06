@@ -3,3 +3,7 @@ n,m,time_seconds,flow,graph_file
 10,13,3.86482640000000011,427,.\grid_n10_d5_seed0.max
 10,13,3.93789470000000019,427,.\grid_n10_d5_seed0.max
 10,13,3.88550899999999988,427,.\grid_n10_d5_seed0.max
+10,13,3.68670579999999992,427,.\graphs\al\int\grid10_d5\grid_n10_d5_seed0.max
+20,31,24.72482869999999977,1063,.\graphs\al\int\grid20_d5\grid_n20_d5_seed1.max
+40,67,127.73052450000000135,811,.\graphs\al\int\grid40_d5\grid_n40_d5_seed1.max
+80,139,663.48266249999994670,1136,.\graphs\al\int\grid80_d5\grid_n80_d5_seed1.max

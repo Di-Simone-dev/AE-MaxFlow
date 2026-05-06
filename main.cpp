@@ -215,20 +215,34 @@ struct GraphScaled {
 };
 
 static GraphScaled scala_grafo(const DimacsResult& graph_in) {
-    // Controlla se ci sono double (capacità non intere)
-    bool has_double = false;
-    for (auto& [_, cap] : graph_in.graph)
-        if (std::holds_alternative<double>(cap)) { has_double = true; break; }
 
-    if (!has_double) {
-        // Tutte intere: converti direttamente
+    // Controlla se ci sono capacità frazionarie (Fraction)
+    bool needs_scaling = false;
+    for (auto& [_, cap] : graph_in.graph) {
+        if (std::holds_alternative<Fraction>(cap)) {
+            needs_scaling = true;
+            break;
+        }
+    }
+
+    /*
+            if (std::holds_alternative<double>(cap) ||
+            std::holds_alternative<Fraction>(cap)) {*/
+
+    if (!needs_scaling) {
         IntGraph ig;
         for (auto& [edge, cap] : graph_in.graph)
-            ig[edge] = static_cast<long long>(std::get<int>(cap));
+            ig[edge] = std::visit([](auto&& v) -> long long {
+                using T = std::decay_t<decltype(v)>;
+                if constexpr (std::is_same_v<T, Fraction>)
+                    return static_cast<long long>(v.num);  // denominatore = 1 garantito
+                else
+                    return static_cast<long long>(v);
+            }, cap);
         return {std::move(ig), 1LL};
     }
 
-    // Estrai i valori come double e scala
+    // Estrai i valori come Fraction e scala tramite MCM dei denominatori
     std::vector<std::pair<int,int>> keys;
     std::vector<Fraction> vals;
     keys.reserve(graph_in.graph.size());
@@ -243,16 +257,22 @@ static GraphScaled scala_grafo(const DimacsResult& graph_in) {
     }
 
     auto [scaled, k] = scale_rationals(vals);
+        for (size_t i = 0; i < keys.size(); ++i)
+            std::cout << "edge (" << keys[i].first << "," << keys[i].second
+              << ") cap_scalata=" << scaled[i] << "\n";
+    
+
+
+
     std::cout << "Scaling attivo: k = " << k
               << "  (flusso reale = flusso_intero / " << k << ")\n";
 
     IntGraph ig;
     for (size_t i = 0; i < keys.size(); ++i)
         ig[keys[i]] = scaled[i];
-
+    std::cout<<"Kfinalemain\n"<<k;
     return {std::move(ig), k};
 }
-
 // ──────────────────────────────────────────────────────────────────────────────
 // esegui_max_flow — traduzione di main.py::esegui_max_flow
 // Restituisce (flow, elapsed_seconds).
@@ -532,7 +552,35 @@ static void run_esperimento_singolo(
 
     DimacsResult pg = parse_dimacs_safe(graph_file);
 
+
+    std::cout << "\n=== DEBUG CAPACITÀ ORIGINALI ===\n";
+    for (const auto& [edge, cap] : pg.graph) {
+        double c = std::visit([](auto&& x) -> double {
+            using T = std::decay_t<decltype(x)>;
+            if constexpr (std::is_same_v<T, int> || std::is_same_v<T, double>)
+                return static_cast<double>(x);
+            else
+                return static_cast<double>(x.num) / static_cast<double>(x.den);
+        }, cap);
+
+        std::cout << "(" << edge.first << "," << edge.second
+                << ") = " << std::setprecision(12) << c << "\n";
+    }
+    std::cout << "===============================\n";
+
+    
     auto [ig, fattore] = scala_grafo(pg);
+    /*
+        std::cout << "\n=== DEBUG: GRAFO SCALATO ===\n";
+    for (const auto& [edge, cap] : ig) {
+        std::cout << "edge (" << edge.first << "," << edge.second
+                << ") cap_scalata=" << cap << "\n";
+    }
+    std::cout << "=== FINE DEBUG ===\n\n";
+    */
+
+
+
 
     std::cout << "File   : " << graph_file   << "\n";
     std::cout << "Source : " << pg.source << "   Sink : " << pg.sink << "\n";

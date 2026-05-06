@@ -84,5 +84,7 @@ DimacsResult parse_dimacs(const std::string& path) {
     if (res.sink < 0)
         throw std::runtime_error("Nessun nodo pozzo (n <id> t) nel file DIMACS");
 
+    
+
     return res;
 }
