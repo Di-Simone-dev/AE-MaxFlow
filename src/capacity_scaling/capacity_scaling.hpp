@@ -46,40 +46,70 @@ inline bool cap_ge(const Capacity& cap, double delta) {
 
 /// min tra due Capacity (degrada a double se i tipi differiscono)
 inline Capacity cap_min(const Capacity& a, const Capacity& b) {
-    if (std::holds_alternative<int64_t>(a) && std::holds_alternative<int64_t>(b))
-        return std::min(std::get<int64_t>(a), std::get<int64_t>(b));
+    // caso int + int
+    if (std::holds_alternative<int>(a) && std::holds_alternative<int>(b)) {
+        int ia = std::get<int>(a);
+        int ib = std::get<int>(b);
+        return Capacity{ std::min(ia, ib) };
+    }
+
+    // caso Fraction + Fraction
     if (std::holds_alternative<Fraction>(a) && std::holds_alternative<Fraction>(b)) {
         const auto& fa = std::get<Fraction>(a);
         const auto& fb = std::get<Fraction>(b);
-        return fa.to_double() <= fb.to_double() ? a : b;
+        return (fa.to_double() <= fb.to_double()) ? a : b;
     }
-    return Capacity{std::min(cap_to_double(a), cap_to_double(b))};
+
+    // tipi misti → confronto in double
+    return Capacity{ std::min(cap_to_double(a), cap_to_double(b)) };
 }
 
 /// Capacity - Capacity  (mantiene il tipo se entrambi uguali)
 inline Capacity cap_sub(const Capacity& a, const Capacity& b) {
-    if (std::holds_alternative<int64_t>(a) && std::holds_alternative<int64_t>(b))
-        return std::get<int64_t>(a) - std::get<int64_t>(b);
+    // caso int - int
+    if (std::holds_alternative<int>(a) && std::holds_alternative<int>(b)) {
+        int ia = std::get<int>(a);
+        int ib = std::get<int>(b);
+        return Capacity{ ia - ib };
+    }
+
+    // caso Fraction - Fraction (con lcm come avevi già fatto)
     if (std::holds_alternative<Fraction>(a) && std::holds_alternative<Fraction>(b)) {
         const auto& fa = std::get<Fraction>(a);
         const auto& fb = std::get<Fraction>(b);
         int64_t lcm = std::lcm(fa.den, fb.den);
-        return Fraction(fa.num * (lcm / fa.den) - fb.num * (lcm / fb.den), lcm);
+        return Fraction(
+            fa.num * (lcm / fa.den) - fb.num * (lcm / fb.den),
+            lcm
+        );
     }
-    return Capacity{cap_to_double(a) - cap_to_double(b)};
+
+    // tipi misti → degrado a double
+    return Capacity{ cap_to_double(a) - cap_to_double(b) };
 }
 
 /// Capacity + Capacity  (simmetrico a cap_sub, mantiene il tipo se entrambi uguali)
 inline Capacity capacity_add(const Capacity& a, const Capacity& b) {
-    if (std::holds_alternative<int64_t>(a) && std::holds_alternative<int64_t>(b))
-        return std::get<int64_t>(a) + std::get<int64_t>(b);
+    // caso int + int
+    if (std::holds_alternative<int>(a) && std::holds_alternative<int>(b)) {
+        int ia = std::get<int>(a);
+        int ib = std::get<int>(b);
+        return Capacity{ ia + ib };
+    }
+
+    // caso Fraction + Fraction (con lcm come avevi già fatto)
     if (std::holds_alternative<Fraction>(a) && std::holds_alternative<Fraction>(b)) {
         const auto& fa = std::get<Fraction>(a);
         const auto& fb = std::get<Fraction>(b);
         int64_t lcm = std::lcm(fa.den, fb.den);
-        return Fraction(fa.num * (lcm / fa.den) + fb.num * (lcm / fb.den), lcm);
+        return Fraction(
+            fa.num * (lcm / fa.den) + fb.num * (lcm / fb.den),
+            lcm
+        );
     }
-    return Capacity{cap_to_double(a) + cap_to_double(b)};
+
+    // tipi misti → degrado a double
+    return Capacity{ cap_to_double(a) + cap_to_double(b) };
 }
 
 // ---------------------------------------------------------------------------

@@ -15,13 +15,31 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Eigen
 )
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+
 # Main executable
 add_executable(maxflow
     main.cpp
+
+    # push-relabel
     src/push_relabel/push_relabel.cpp
+
+    # almost-linear
     src/almost_linear/almost_linear_time.cpp
     src/almost_linear/feasible_flow.cpp
     src/almost_linear/min_cost_flow_instance.cpp
+    src/almost_linear/howard.cpp
+
+    # capacity scaling
+    src/capacity_scaling/capacity_scaling.cpp
+
+    # parser DIMACS
+    src/util/parse_dimacs.cpp
+
+    # rational utilities
+    src/util/capacity.cpp
+    src/util/fraction.cpp
+    src/util/scale_rationals.cpp
 )
 
 # Compiler flags per Visual Studio

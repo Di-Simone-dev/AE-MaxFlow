@@ -104,8 +104,10 @@ Capacity parse_capacity(const std::string& s_raw) {
             }
         };
 
-        replace("pi", std::to_string(std::numbers::pi));
-        replace("e",  std::to_string(std::numbers::e));
+        //sostituiti MinGW 13.2 NON implementa <numbers>
+        replace("pi", "3.14159265358979323846");
+        replace("e",  "2.71828182845904523536");
+
 
         // Supporto minimo: sqrt(...)
         if (expr.rfind("sqrt(", 0) == 0 && expr.back() == ')') {

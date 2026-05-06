@@ -151,7 +151,7 @@ static Config load_config(const std::string& path) {
     // Sezioni annidate: "dataset_reali.<flag>"
     for (auto& [sec, kvmap] : doc) {
         if (sec.substr(0, 15) != "dataset_reali.") continue;
-        std::string flag = sec.substr(15);
+        std::string flag = sec.substr(14);  // "dataset_reali." = 14 caratteri
         Config::DatasetInfo di;
         di.prefix       = kvmap.count("prefix")       ? kvmap.at("prefix")       : "";
         di.directory    = kvmap.count("directory")    ? kvmap.at("directory")    : "";
@@ -370,7 +370,9 @@ static void run_benchmark_reale(
     // Ricava il nome del file CSV dall'out_files dell'algoritmo
     fs::path csv_path = fs::path(output_dir) /
                         fs::path(out_files.at(algorithm)).filename();
-
+    
+    std::cout <<csv_path; //capire l'output nel debug
+    
     init_csv(csv_path.string(),
              {"n", "m", "time_seconds", "flow", "graph_file", "correctness"});
 
@@ -557,6 +559,10 @@ static void run_esperimento_singolo(
 // ──────────────────────────────────────────────────────────────────────────────
 
 int main(int argc, char* argv[]) {
+    
+
+
+
     // Trova la directory dell'eseguibile per risolvere il percorso del config
     fs::path exe_dir = fs::path(argv[0]).parent_path();
     fs::path cfg_path = exe_dir / "configs" / "configmain.toml";
@@ -569,6 +575,34 @@ int main(int argc, char* argv[]) {
         std::cerr << "(percorso cercato: " << cfg_path << ")\n";
         return 1;
     }
+
+        // HARDCODED FALLBACK — dataset_reali
+    {
+        Config::DatasetInfo bvz;
+        bvz.prefix       = "BVZ-tsukuba";
+        bvz.directory    = "benchmarkreali/BVZ-tsukuba";
+        bvz.count        = 16;
+        bvz.output_dir   = "benchmarkBVZ";
+        bvz.out_files_key = "out_files_bvz";
+        cfg.dataset_reali["-BVZ"] = bvz;
+
+        Config::DatasetInfo kz2;
+        kz2.prefix       = "KZ2-venus";
+        kz2.directory    = "benchmarkreali/KZ2-venus";
+        kz2.count        = 22;
+        kz2.output_dir   = "benchmarkKZ2";
+        kz2.out_files_key = "out_files_kz2";
+        cfg.dataset_reali["-KZ2"] = kz2;
+    }
+
+
+
+
+    //debug
+    std::cout << "=== dataset_reali caricati ===\n";
+    for (auto& [k, v] : cfg.dataset_reali)
+        std::cout << "  [" << k << "] prefix=" << v.prefix << "\n";
+    std::cout << "==============================\n";
 
     if (argc == 1) {
         std::cerr << "Utilizzo: " << argv[0] << " <flag> [dataset|file]\n";
@@ -599,9 +633,9 @@ int main(int argc, char* argv[]) {
 
     std::string algorithm = cfg.algs.at(alg_flag);
     std::string dataset   = argv[2];
-
     // ── Dataset reali ──────────────────────────────────────────────────────
     if (cfg.dataset_reali.count(dataset)) {
+        
         auto& di = cfg.dataset_reali.at(dataset);
         const auto& out_files = (di.out_files_key == "out_files_bvz")
                                 ? cfg.out_files_bvz

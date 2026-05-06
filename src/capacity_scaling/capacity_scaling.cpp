@@ -159,6 +159,6 @@ Capacity CapacityScaling::_augment(int s, int t, const Parent& parent) {
 bool CapacityScaling::_is_rational() const {
     if (_graph.empty()) return true;
     const Capacity& first = _graph.begin()->second;
-    return std::holds_alternative<int64_t>(first) ||
+    return std::holds_alternative<int>(first) ||
            std::holds_alternative<Fraction>(first);
 }

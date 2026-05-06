@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------------------
+# Configurazione benchmark max-flow
+# ---------------------------------------------------------------------------
+
+# Mappa flag CLI → chiave algoritmo
+[algs]
+"-pr" = "push_relabel"
+"-cs" = "capacity_scaling"
+"-al" = "almost_linear_time"
+
+# Percorsi CSV per benchmark su singolo file .max
+[out_files_single]
+"-pr" = "benchmarksingoli/pr_results.csv"
+"-cs" = "benchmarksingoli/cs_results.csv"
+"-al" = "benchmarksingoli/al_results.csv"
+
+# Cartelle delle istanze sintetiche per algoritmo
+# (push_relabel e capacity_scaling condividono gli stessi grafi)
+[instances_dir]
+push_relabel       = "graphs/pr_cs"
+capacity_scaling   = "graphs/pr_cs"
+almost_linear_time = "graphs/al"
+
+# Percorsi CSV per i benchmark su grafi reali BVZ
+[out_files_bvz]
+push_relabel       = "benchmarkBVZ/pr_results.csv"
+capacity_scaling   = "benchmarkBVZ/cs_results.csv"
+almost_linear_time = "benchmarkBVZ/al_results.csv"
+
+# Percorsi CSV per i benchmark su grafi reali KZ2
+[out_files_kz2]
+push_relabel       = "benchmarkKZ2/pr_results.csv"
+capacity_scaling   = "benchmarkKZ2/cs_results.csv"
+almost_linear_time = "benchmarkKZ2/al_results.csv"
+
+# Configurazione dataset reali
+# out_files_key: sezione TOML da cui caricare i percorsi CSV ("out_files_bvz" o "out_files_kz2")
+[dataset_reali.-BVZ]
+prefix       = "BVZ-tsukuba"
+directory    = "benchmarkreali/BVZ-tsukuba"
+count        = 16
+output_dir   = "benchmarkBVZ"
+out_files_key = "out_files_bvz"
+
+[dataset_reali.-KZ2]
+prefix       = "KZ2-venus"
+directory    = "benchmarkreali/KZ2-venus"
+count        = 22
+output_dir   = "benchmarkKZ2"
+out_files_key = "out_files_kz2"

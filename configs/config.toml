@@ -1,0 +1,86 @@
+# ── Output ────────────────────────────────────────────────────────────────────
+
+[output]
+outdir = "graphs/pr_cs"
+
+
+# ── Capacity ranges ────────────────────────────────────────────────────────────
+# Used by _random_int_capacity, _random_rational_capacity, _random_irrational_capacity
+
+[capacity]
+lo = 200
+hi = 1000
+
+# Big-int capacity used as upper bound for s/t arcs.
+# Set to 0 to generate a fresh random value in [capacity.lo, capacity.hi] at runtime.
+big_int = 0   # 0 = random each run
+
+
+# ── Layered network batch ──────────────────────────────────────────────────────
+
+[layered]
+n_values           = [500, 1000, 2000, 4000]
+d_values           = [4, 6, 8, 10]
+cap_types          = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 30
+
+
+# ── Grid network batch ────────────────────────────────────────────────────────
+
+[grid]
+n_values           = [500, 1000, 2000, 4000]
+d                  = 5
+cap_types          = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 20
+
+
+# ── Almost-linear-time batch ──────────────────────────────────────────────────
+
+[almost_linear]
+outdir = "graphs/al"
+
+[almost_linear.layered]
+n_values           = [10, 20, 40, 80]
+d_values           = [4]
+cap_types          = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 30
+
+
+# ── Almost-linear-time batch (grid) ───────────────────────────────────────────
+
+[almost_linear.grid]
+n_values           = [10, 20, 40, 80]
+d                  = 5
+cap_types          = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 20
+
+# ── Plotting ───────────────────────────────────────────────────────────────────
+ 
+[plots]
+outdir = "plots"
+ 
+[plots.style.layered]
+color        = "steelblue"
+label_prefix = "Layered networks"
+ 
+[plots.style.grid]
+color        = "darkorange"
+label_prefix = "Grid networks"
+
+# ── Run 1 ─────────────────────────────────────────────────────────────────────
+[[runs]]
+results_csv = "benchmarksintetici/capacity_scaling_results.csv"
+output_csv  = "benchmarksintetici/cs_aggregated.csv"
+out_dir     = "plots/capacity_scaling_results"
+
+# ── Run 2 ─────────────────────────────────────────────────────────────────────
+[[runs]]
+results_csv = "benchmarksintetici/push_relabel_results.csv"
+output_csv  = "benchmarksintetici/pr_aggregated.csv"
+out_dir     = "plots/push_relabel_results"
+
+# ── Run 3 ─────────────────────────────────────────────────────────────────────
+[[runs]]
+results_csv = "benchmarksintetici/almost_linear_time_results.csv"
+output_csv  = "benchmarksintetici/al_aggregated.csv"
+out_dir     = "plots/almost_linear_time_results"
