@@ -8,7 +8,7 @@
 // ---------------------------------------------------------------------------
 // Costruttore
 // ---------------------------------------------------------------------------
-AlmostLinearTime::AlmostLinearTime(const std::map<std::pair<int,int>, int>& graph) {
+AlmostLinearTime::AlmostLinearTime(const std::map<std::pair<int,int>, long long>& graph) {
     for (auto& [edge, cap] : graph) {
         _edges.push_back(edge);
         _capacities.push_back(cap);
@@ -18,16 +18,16 @@ AlmostLinearTime::AlmostLinearTime(const std::map<std::pair<int,int>, int>& grap
 // ---------------------------------------------------------------------------
 // max_flow  —  ricerca binaria sul valore ottimale
 // ---------------------------------------------------------------------------
-int AlmostLinearTime::max_flow(int source, int sink) {
+long long AlmostLinearTime::max_flow(int source, int sink) {
     // Limite superiore: somma delle capacità uscenti da source
-    int max_possible_flow = 0;
-    for (int e = 0; e < static_cast<int>(_edges.size()); ++e)
+    long long max_possible_flow = 0;
+    for (long long e = 0; e < static_cast<long long>(_edges.size()); ++e)
         if (_edges[e].first == source)
             max_possible_flow += _capacities[e];
 
-    int iters = 0;
-    int low = 0, high = max_possible_flow + 1;
-    int mf = 0;
+    long long iters = 0;
+    long long low = 0, high = max_possible_flow + 1;
+    long long mf = 0;
 
     while (low < high) {
         ++iters;
@@ -49,11 +49,11 @@ int AlmostLinearTime::max_flow(int source, int sink) {
 // ---------------------------------------------------------------------------
 // max_flow_with_guess  —  risolve con stima fissata del flusso ottimale
 // ---------------------------------------------------------------------------
-std::pair<int, Eigen::VectorXd> AlmostLinearTime::max_flow_with_guess(
+std::pair<long long, Eigen::VectorXd> AlmostLinearTime::max_flow_with_guess(
     int source,
     int sink,
-    int optimal_flow,
-    const std::vector<int>* lower_capacities
+    long long optimal_flow,
+    const std::vector<long long>* lower_capacities
 ) {
     // ── Costruzione istanza min-cost flow ────────────────────────────────
     MinCostFlow I = MinCostFlow::from_max_flow_instance(
@@ -71,7 +71,7 @@ std::pair<int, Eigen::VectorXd> AlmostLinearTime::max_flow_with_guess(
     // ── Flusso ammissibile iniziale ──────────────────────────────────────
     auto [I2, cur_flow] = almost_linear::calc_feasible_flow(I);  //problema di namespace risolto
     I = std::move(I2);
- 
+
     // ── Parametri dell'algoritmo ─────────────────────────────────────────
     const double threshold = 1e-5;
     const double kappa     = 0.9999;

@@ -6,7 +6,7 @@
 #include <cassert>
 #include <cmath>
 #include <algorithm>
-
+#include <unordered_map>//per ottimizzare
 class MinCostFlow {
 public:
     int m;       // numero di archi
@@ -16,11 +16,17 @@ public:
     Eigen::VectorXd c_org;
     Eigen::VectorXd u_lower;
     Eigen::VectorXd u_upper;
-    int optimal_cost;
-    int U;
+    long long optimal_cost;
+    long long U;
     double alpha;
     Eigen::MatrixXd B;  // matrice di incidenza (m x n)
-    std::map<std::pair<int,int>, std::vector<int>> undirected_edge_to_indices;
+    //std::map<std::pair<int,int>, std::vector<int>> undirected_edge_to_indices;
+    struct PairHash {
+        std::size_t operator()(const std::pair<int,int>& p) const noexcept {
+            return std::hash<std::int64_t>()((std::int64_t)p.first << 32 | (unsigned)p.second);
+        }
+    };
+    std::unordered_map<std::pair<int,int>, std::vector<int>, PairHash> undirected_edge_to_indices;
     std::vector<std::vector<int>> adj;
 
     // Costruttore principale
@@ -29,7 +35,7 @@ public:
         const Eigen::VectorXd& c,
         const Eigen::VectorXd& u_lower,
         const Eigen::VectorXd& u_upper,
-        int optimal_cost
+        long long optimal_cost
     );
 
     // Costruttore privato usato da clone()
@@ -41,9 +47,9 @@ public:
         const std::vector<std::pair<int,int>>& edges,
         int s,
         int t,
-        int optimal_flow,
-        const std::vector<int>& capacities,
-        const std::vector<int>* lower_capacities = nullptr
+        long long optimal_flow,
+        const std::vector<long long>& capacities,
+        const std::vector<long long>* lower_capacities = nullptr
     );
 
     double phi(const Eigen::VectorXd& f) const;

@@ -4,7 +4,6 @@
 #include <cassert>
 #include <cmath>
 #include <limits>
-
 static constexpr double INF = std::numeric_limits<double>::infinity();
 
 // ---------------------------------------------------------------------------
@@ -30,6 +29,7 @@ Howard::Howard(const MinCostFlow& graph,
         auto [u, w] = g.edges[edge_id];
         double grad = gradients_vec[edge_id];
         _edge_cache[{u, edge_id}] = {w, -grad};  // ← BUG fedele all'originale
+        //_edge_cache[{u, edge_id}] = {w, grad};  // ← modificato
         _edge_cache[{w, edge_id}] = {u,  grad};
     }
 
@@ -42,13 +42,11 @@ Howard::Howard(const MinCostFlow& graph,
 // ---------------------------------------------------------------------------
 double Howard::_compute_bound() const {
     double sum_weights = gradients_vec.cwiseAbs().sum();
-
     double min_len = INF;
     for (int i = 0; i < lengths_vec.size(); ++i) {
         double al = std::abs(lengths_vec[i]);
         if (al > 1e-10 && al < min_len) min_len = al;
     }
-
     if (min_len == INF) return INF;
     return sum_weights / min_len;
 }
@@ -97,7 +95,7 @@ void Howard::_construct_policy_graph() {
 // ---------------------------------------------------------------------------
 int Howard::_find_cycle_vertex(int start) const {
     int current = start;
-    std::set<int> visited;
+    std::unordered_set<int> visited;
 
     while (visited.find(current) == visited.end()) {
         visited.insert(current);
@@ -245,7 +243,6 @@ std::pair<double, Eigen::VectorXd> Howard::find_optimum_cycle_ratio() {
         if (!_improve_policy(ratio)) break;
         ++iteration;
     }
-
     if (ratio > bound - 1e-10 || !critical_cycle.has_value()) {
         return {INF, Eigen::VectorXd::Zero(g.m)};
     } else {

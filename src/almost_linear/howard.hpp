@@ -1,9 +1,10 @@
 #pragma once
 
 #include "min_cost_flow_instance.hpp"
-
-#include <set>
-#include <map>
+#include <unordered_map>
+#include <unordered_set>
+//#include <set>
+//#include <map>
 #include <optional>
 #include <utility>
 #include <vector>
@@ -33,10 +34,16 @@ private:
     Eigen::VectorXd            distances;
     std::vector<int>           policy;
     std::vector<bool>          bad_vertices;
-    std::vector<std::set<int>> in_edges_list;
+    std::vector<std::unordered_set<int>> in_edges_list;
 
     // Cache: (nodo, edge_id) → (nodo_target, gradiente orientato)
-    std::map<std::pair<int,int>, std::pair<int,double>> _edge_cache;
+    //std::map<std::pair<int,int>, std::pair<int,double>> _edge_cache;
+    struct PairHash { //ottimizzazione
+        std::size_t operator()(const std::pair<int,int>& p) const noexcept {
+            return std::hash<std::int64_t>()((std::int64_t)p.first << 32 | (unsigned)p.second);
+        }
+    };
+    std::unordered_map<std::pair<int,int>, std::pair<int,double>, PairHash> _edge_cache;
 
     int    sink;
     double bound;

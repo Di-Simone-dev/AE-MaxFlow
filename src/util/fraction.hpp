@@ -5,14 +5,14 @@
 
 class Fraction {
 public:
-    int num;  // numeratore
-    int den;  // denominatore > 0
+    long long num;  // numeratore
+    long long den;  // denominatore > 0
 
-    Fraction(int n = 0, int d = 1) {
+    Fraction(long long n = 0, long long d = 1) {
         if (d == 0)
             throw std::runtime_error("Denominatore zero in Fraction");
         if (d < 0) { n = -n; d = -d; }
-        int g = std::gcd(n, d);
+        long long g = std::gcd(n, d);
         num = n / g;
         den = d / g;
     }

@@ -12,7 +12,7 @@ MinCostFlow::MinCostFlow(
     const Eigen::VectorXd& c_,
     const Eigen::VectorXd& u_lower_,
     const Eigen::VectorXd& u_upper_,
-    int optimal_cost_
+    long long optimal_cost_
 ) {
     m = static_cast<int>(edges_.size());
 
@@ -30,10 +30,10 @@ MinCostFlow::MinCostFlow(
     optimal_cost = optimal_cost_;
 
     // U = max capacità in valore assoluto
-    U = static_cast<int>(std::max(u_upper.cwiseAbs().maxCoeff(),
+    U = static_cast<long long>(std::max(u_upper.cwiseAbs().maxCoeff(),
                                   u_lower.cwiseAbs().maxCoeff()));
 
-    alpha = 1.0 / std::log2(1000.0 * m * U);
+    alpha = 1.0 / std::log2(1000.0 * m * static_cast<double>(U));
 
     // Verifiche di consistenza
     assert(static_cast<int>(edges.size())    == m);
@@ -92,9 +92,9 @@ MinCostFlow MinCostFlow::clone() const {
 MinCostFlow MinCostFlow::from_max_flow_instance(
     const std::vector<std::pair<int,int>>& edges,
     int s, int t,
-    int optimal_flow,
-    const std::vector<int>& capacities,
-    const std::vector<int>* lower_capacities
+    long long optimal_flow,
+    const std::vector<long long>& capacities,
+    const std::vector<long long>* lower_capacities
 ) {
     // Aggiunge arco di ritorno (t -> s)
     auto new_edges = edges;
@@ -115,7 +115,7 @@ MinCostFlow MinCostFlow::from_max_flow_instance(
 
     // Capacità superiori
     Eigen::VectorXd u_upper(total);
-    int cap_sum = 0;
+    long long cap_sum = 0;
     for (int i = 0; i < static_cast<int>(capacities.size()); ++i) {
         u_upper[i] = capacities[i];
         cap_sum += capacities[i];

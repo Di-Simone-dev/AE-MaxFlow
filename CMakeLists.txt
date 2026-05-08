@@ -19,7 +19,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Main executable
 add_executable(maxflow
-    main.cpp
+    src/main.cpp
 
     # push-relabel
     src/push_relabel/push_relabel.cpp

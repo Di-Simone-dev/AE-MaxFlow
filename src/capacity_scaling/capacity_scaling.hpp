@@ -2,156 +2,91 @@
 
 // capacity_scaling.hpp
 // Gabow (1985) - O(m² log U)
+//
+// Supporta due modalità selezionate dal costruttore:
+//   - IntGraph (long long): per grafi interi o razionali già scalati.
+//                           max_flow restituisce variant<long long, double>
+//                           con long long attivo.
+//   - DblGraph (double):    per grafi irrazionali/floating-point.
+//                           max_flow restituisce variant con double attivo.
 
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
-#include <cassert>
 #include <deque>
 #include <limits>
-#include <map>
-#include <numeric>   // std::lcm
+#include <numeric>
 #include <optional>
 #include <stdexcept>
-#include <string>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 #include <cstdint>
 
-#include "capacity.hpp"
+#include "pair_hash.hpp"
 
-// ---------------------------------------------------------------------------
-// Helpers su Capacity  (tutti inline: usati sia in .hpp che in .cpp)
-// ---------------------------------------------------------------------------
-
-/// Converte qualsiasi Capacity in double
-inline double cap_to_double(const Capacity& c) {
-    return std::visit([](auto&& v) -> double {
-        using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, Fraction>) return v.to_double();
-        else return static_cast<double>(v);
-    }, c);
-}
-
-/// Capacity > 0
-inline bool cap_positive(const Capacity& c) {
-    return cap_to_double(c) > 0.0;
-}
-
-/// cap >= delta  (delta è sempre double in questo algo)
-inline bool cap_ge(const Capacity& cap, double delta) {
-    return cap_to_double(cap) >= delta;
-}
-
-/// min tra due Capacity (degrada a double se i tipi differiscono)
-inline Capacity cap_min(const Capacity& a, const Capacity& b) {
-    // caso int + int
-    if (std::holds_alternative<int>(a) && std::holds_alternative<int>(b)) {
-        int ia = std::get<int>(a);
-        int ib = std::get<int>(b);
-        return Capacity{ std::min(ia, ib) };
+// PairHash — condiviso con PushRelabel, guard contro doppia definizione
+/*
+#ifndef PAIR_HASH_DEFINED
+#define PAIR_HASH_DEFINED
+struct PairHash {
+    std::size_t operator()(const std::pair<int,int>& p) const noexcept {
+        std::size_t h1 = std::hash<int>{}(p.first);
+        std::size_t h2 = std::hash<int>{}(p.second);
+        return h1 ^ (h2 * 0x9e3779b97f4a7c15ULL + (h1 << 6) + (h1 >> 2));
     }
-
-    // caso Fraction + Fraction
-    if (std::holds_alternative<Fraction>(a) && std::holds_alternative<Fraction>(b)) {
-        const auto& fa = std::get<Fraction>(a);
-        const auto& fb = std::get<Fraction>(b);
-        return (fa.to_double() <= fb.to_double()) ? a : b;
-    }
-
-    // tipi misti → confronto in double
-    return Capacity{ std::min(cap_to_double(a), cap_to_double(b)) };
-}
-
-/// Capacity - Capacity  (mantiene il tipo se entrambi uguali)
-inline Capacity cap_sub(const Capacity& a, const Capacity& b) {
-    // caso int - int
-    if (std::holds_alternative<int>(a) && std::holds_alternative<int>(b)) {
-        int ia = std::get<int>(a);
-        int ib = std::get<int>(b);
-        return Capacity{ ia - ib };
-    }
-
-    // caso Fraction - Fraction (con lcm come avevi già fatto)
-    if (std::holds_alternative<Fraction>(a) && std::holds_alternative<Fraction>(b)) {
-        const auto& fa = std::get<Fraction>(a);
-        const auto& fb = std::get<Fraction>(b);
-        int64_t lcm = std::lcm(fa.den, fb.den);
-        return Fraction(
-            fa.num * (lcm / fa.den) - fb.num * (lcm / fb.den),
-            lcm
-        );
-    }
-
-    // tipi misti → degrado a double
-    return Capacity{ cap_to_double(a) - cap_to_double(b) };
-}
-
-/// Capacity + Capacity  (simmetrico a cap_sub, mantiene il tipo se entrambi uguali)
-inline Capacity capacity_add(const Capacity& a, const Capacity& b) {
-    // caso int + int
-    if (std::holds_alternative<int>(a) && std::holds_alternative<int>(b)) {
-        int ia = std::get<int>(a);
-        int ib = std::get<int>(b);
-        return Capacity{ ia + ib };
-    }
-
-    // caso Fraction + Fraction (con lcm come avevi già fatto)
-    if (std::holds_alternative<Fraction>(a) && std::holds_alternative<Fraction>(b)) {
-        const auto& fa = std::get<Fraction>(a);
-        const auto& fb = std::get<Fraction>(b);
-        int64_t lcm = std::lcm(fa.den, fb.den);
-        return Fraction(
-            fa.num * (lcm / fa.den) + fb.num * (lcm / fb.den),
-            lcm
-        );
-    }
-
-    // tipi misti → degrado a double
-    return Capacity{ cap_to_double(a) + cap_to_double(b) };
-}
-
-// ---------------------------------------------------------------------------
-// Struttura dell'arco nel grafo residuo
-// ---------------------------------------------------------------------------
-
-struct Edge {
-    int      to;   // nodo destinazione
-    int      rev;  // indice dell'arco inverso in _adj[to]
-    Capacity cap;  // capacità residua
 };
+#endif
+*/
 
-// ---------------------------------------------------------------------------
-// CapacityScaling
-// ---------------------------------------------------------------------------
+
+// Arco nel grafo residuo, templatizzato sul tipo di capacità
+template<typename Cap>
+struct CSEdge {
+    int to;
+    int rev;
+    Cap cap;
+};
 
 class CapacityScaling {
 public:
-    explicit CapacityScaling(const std::map<std::pair<int,int>, Capacity>& graph);
 
-    /// Calcola il flusso massimo da source a sink.
-    Capacity max_flow(int source, int sink);
+    using IntGraph = std::unordered_map<std::pair<int,int>, long long, PairHash>;
+    using DblGraph = std::unordered_map<std::pair<int,int>, double,    PairHash>;
 
-    /// Flusso sull'arco (u, v) dopo aver chiamato max_flow().
-    Capacity flow_on_edge(int u, int v) const;
+    // Modalità intera: max_flow restituisce variant con long long attivo
+    explicit CapacityScaling(const IntGraph& graph);
+
+    // Modalità double: max_flow restituisce variant con double attivo
+    explicit CapacityScaling(const DblGraph& graph);
+
+    // Calcola il flusso massimo.
+    // Usare std::get<long long> o std::get<double> in base al costruttore usato.
+    std::variant<long long, double> max_flow(int source, int sink);
 
 private:
+
+    int  _n;
+    bool _is_double = false;
+
+    // Soglia epsilon per confronti in modalità double
+    static constexpr double EPS = 1e-9;
+
+    std::unordered_map<int, int> _index;
+    std::vector<int>             _label;
+
+    // Uno solo dei due è popolato in base al costruttore
+    std::vector<std::vector<CSEdge<long long>>> _adj_int;
+    std::vector<std::vector<CSEdge<double>>>    _adj_dbl;
+
     using Parent = std::vector<std::pair<int,int>>;  // parent[v] = {u, edge_idx}
 
-    // BFS nel delta-residual graph; ritorna nullopt se t non è raggiungibile
-    std::optional<Parent> _bfs(int s, int t, double delta);
+    std::optional<Parent> _bfs_int(int s, int t, long long delta) const;
+    std::optional<Parent> _bfs_dbl(int s, int t, double   delta) const;
 
-    // Augment sul cammino trovato dalla BFS; ritorna il bottleneck inviato
-    Capacity _augment(int s, int t, const Parent& parent);
+    long long _augment_int(int s, int t, const Parent& parent);
+    double    _augment_dbl(int s, int t, const Parent& parent);
 
-    // true se tutte le capacità sono int64 o Fraction (→ eps = 1)
-    bool _is_rational() const;
-
-    // ---- dati ----
-    const std::map<std::pair<int,int>, Capacity>&              _graph;
-    std::map<int, int>                                          _index;
-    std::vector<int>                                            _label;
-    std::vector<std::vector<Edge>>                              _adj;
-    std::map<std::pair<int,int>, std::pair<int,int>>            _edge_location;
+    long long _max_flow_int(int s, int t);
+    double    _max_flow_dbl(int s, int t);
 };
