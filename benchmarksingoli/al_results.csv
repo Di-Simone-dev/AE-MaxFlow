@@ -40,3 +40,11 @@ n,m,time_seconds,flow,graph_file
 40,67,7.68616250000000001,2,.\graphs\al\unit\grid40_d5\grid_n40_d5_seed0.max
 20,31,1.33691739999999992,2,.\graphs\al\unit\grid20_d5\grid_n20_d5_seed1.max
 40,67,7.62575230000000026,2,.\graphs\al\unit\grid40_d5\grid_n40_d5_seed0.max
+10,13,3.25920770000000015,612,.\graphs\al\int\grid10_d5\grid_n10_d5_seed3.max
+10,13,0.31413730000000001,612,.\graphs\al\int\grid10_d5\grid_n10_d5_seed3.max
+10,13,0.28267049999999999,529,.\graphs\al\int\grid10_d5\grid_n10_d5_seed1.max
+10,13,0.21000040000000000,529,.\graphs\al\int\grid10_d5\grid_n10_d5_seed1.max
+10,13,0.24459420000000001,427,.\graphs\al\int\grid10_d5\grid_n10_d5_seed0.max
+20,31,1.35949309999999990,1224,.\graphs\al\int\grid20_d5\grid_n20_d5_seed0.max
+40,67,5.54604579999999991,1176,.\graphs\al\int\grid40_d5\grid_n40_d5_seed0.max
+80,139,27.31406319999999965,1097,.\graphs\al\int\grid80_d5\grid_n80_d5_seed0.max

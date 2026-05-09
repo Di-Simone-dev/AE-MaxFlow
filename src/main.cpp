@@ -1,21 +1,39 @@
-/*
- * main.cpp
- * --------
- * Traduzione di main.py.
+/**
+ * @file main.cpp
+ * @brief Entry point e orchestrazione del benchmark di algoritmi di flusso massimo.
  *
- * Utilizzo (identico al Python):
- *   ./maxflow -pr <dataset|file.max>
- *   ./maxflow -cs <dataset|file.max>
- *   ./maxflow -fullsuite
+ * Traduzione C++ di `main.py`. Supporta tre algoritmi di flusso massimo
+ * su grafi in formato DIMACS `.max`:
  *
- * Note rispetto al Python:
- *   - La configurazione TOML viene letta da configs/configmain.toml tramite
- *     un parser minimale (nessuna dipendenza esterna: solo std).
- *   - Tutti e tre gli algoritmi sono supportati: push_relabel, capacity_scaling
- *     e almost_linear_time.
- *   - parse_dimacs_safe e format_flow sono funzioni dedicate (come in Python).
- *   - I Fraction di Python vengono gestiti tramite Fraction + scale_rationals.
- *   - Il formato del CSV è identico al Python (compreso "%.17f" per i tempi).
+ * | Flag CLI   | Algoritmo             |
+ * |------------|-----------------------|
+ * | `-pr`      | Push-Relabel          |
+ * | `-cs`      | Capacity Scaling      |
+ * | `-alt`     | Almost Linear Time    |
+ *
+ * ### Modalità di esecuzione
+ * ```
+ * ./maxflow -pr  <dataset|file.max>   # singolo file o dataset reale
+ * ./maxflow -cs  <dataset|file.max>
+ * ./maxflow -alt <dataset|file.max>
+ * ./maxflow -fullsuite                # tutti gli algoritmi, tutti i dataset sintetici
+ * ```
+ *
+ * ### Configurazione
+ * Legge `configs/configmain.toml` dalla stessa directory dell'eseguibile
+ * tramite un parser TOML minimale (solo sezioni piatte e annidate con
+ * valori stringa; nessuna dipendenza esterna).
+ *
+ * ### Gestione delle capacità
+ * Le capacità degli archi possono essere intere, razionali (`Fraction`) o
+ * double. La funzione scala_grafo() normalizza il grafo prima di passarlo
+ * al solver appropriato, usando scale_rationals() per i grafi razionali.
+ *
+ * ### Formato CSV di output
+ * Identico al Python originale, compresi i tempi formattati con 17 cifre
+ * decimali (`"%.17f"`).
+ *
+ * @see push_relabel.hpp, capacity_scaling.hpp, almost_linear_time.hpp
  */
 
 #include <algorithm>
@@ -47,32 +65,78 @@
 
 namespace fs = std::filesystem;
 
-// Forward declaration: implementazione in src/util/parse_dimacs.cpp
+/// Forward declaration: implementazione in `src/util/parse_dimacs.cpp`.
 DimacsResult parse_dimacs(const std::string& path);
 
-// Type aliases
+/// Alias per il grafo con capacità intere (usato da PushRelabel e AlmostLinearTime).
 using IntGraph = std::unordered_map<std::pair<int,int>, long long, PairHash>;
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Parser TOML minimale (solo sezioni semplici e sezioni annidate con chiavi stringa)
-// Sufficiente per configmain.toml, che non usa array né valori numerici TOML.
-// ──────────────────────────────────────────────────────────────────────────────
+/// Alias per il grafo con capacità double (usato da PushRelabel e CapacityScaling in modalità double).
+using DblGraph = std::unordered_map<std::pair<int,int>, double, PairHash>;
 
+
+// ============================================================================
+// Parser TOML minimale
+// ============================================================================
+
+/**
+ * @brief Mappa chiave→valore per una singola sezione TOML.
+ *
+ * Tutti i valori sono trattati come stringhe (le virgolette vengono rimosse).
+ */
 using TomlSection = std::map<std::string, std::string>;
-using TomlDoc     = std::map<std::string, TomlSection>;
 
+/**
+ * @brief Documento TOML: mappa nome-sezione → TomlSection.
+ *
+ * Supporta sezioni piatte (`[algs]`) e sezioni annidate simulate con punti
+ * (`[dataset_reali.-BVZ]`). Non supporta array TOML né valori numerici nativi.
+ */
+using TomlDoc = std::map<std::string, TomlSection>;
+
+/**
+ * @brief Rimuove spazi, tab e newline all'inizio e alla fine di una stringa.
+ *
+ * @param s  Stringa da trimmare.
+ * @return   Copia trimmata di @p s. Stringa vuota se @p s contiene solo
+ *           caratteri di spaziatura.
+ */
 static std::string trim(const std::string& s) {
     size_t a = s.find_first_not_of(" \t\r\n");
     size_t b = s.find_last_not_of(" \t\r\n");
     return (a == std::string::npos) ? "" : s.substr(a, b - a + 1);
 }
 
+/**
+ * @brief Rimuove le virgolette doppie che racchiudono una stringa TOML.
+ *
+ * Se @p s inizia e finisce con `"`, restituisce il contenuto interno;
+ * altrimenti restituisce @p s invariata.
+ *
+ * @param s  Valore TOML grezzo (con o senza virgolette).
+ * @return   Valore senza virgolette.
+ */
 static std::string strip_quotes(const std::string& s) {
     if (s.size() >= 2 && s.front() == '"' && s.back() == '"')
         return s.substr(1, s.size() - 2);
     return s;
 }
 
+/**
+ * @brief Legge e analizza un file TOML minimale.
+ *
+ * Il parser riconosce:
+ * - Righe vuote e commenti (iniziano con `#`): ignorati.
+ * - Intestazioni di sezione: `[nome_sezione]`
+ * - Coppie chiave-valore: `chiave = "valore"` (virgolette opzionali).
+ *
+ * Non supporta array, tabelle inline, valori multiriga o tipi nativi TOML
+ * (interi, booleani, date). Sufficiente per `configmain.toml`.
+ *
+ * @param path  Percorso del file TOML da leggere.
+ * @return      Documento TOML come TomlDoc.
+ * @throws std::runtime_error  Se il file non può essere aperto.
+ */
 static TomlDoc parse_toml(const std::string& path) {
     std::ifstream f(path);
     if (!f.is_open()) throw std::runtime_error("Impossibile aprire: " + path);
@@ -86,80 +150,104 @@ static TomlDoc parse_toml(const std::string& path) {
         if (l.empty() || l[0] == '#') continue;
 
         if (l[0] == '[') {
-            // Sezione: "[algs]" o "[dataset_reali.-BVZ]"
+            // Intestazione di sezione: "[nome]" o "[sezione.sottosezione]"
             cur_section = trim(l.substr(1, l.rfind(']') - 1));
-            doc[cur_section];  // assicura che la sezione esista
+            doc[cur_section]; // assicura che la sezione esista anche se vuota
             continue;
         }
 
         auto eq = l.find('=');
         if (eq == std::string::npos) continue;
-        std::string key = trim(l.substr(0, eq));
-        std::string val = trim(l.substr(eq + 1));
-        key = strip_quotes(key);
-        val = strip_quotes(val);
-
+        std::string key = strip_quotes(trim(l.substr(0, eq)));
+        std::string val = strip_quotes(trim(l.substr(eq + 1)));
         doc[cur_section][key] = val;
     }
     return doc;
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Configurazione caricata dal TOML
-// ──────────────────────────────────────────────────────────────────────────────
 
+// ============================================================================
+// Configurazione
+// ============================================================================
+
+/**
+ * @brief Configurazione del programma, caricata da `configmain.toml`.
+ *
+ * Ogni campo corrisponde a una sezione del file TOML. Le sezioni annidate
+ * `[dataset_reali.<flag>]` vengono raccolte in dataset_reali.
+ */
 struct Config {
-    // [algs]: flag CLI → chiave algoritmo
-    std::map<std::string,std::string> algs;
+    std::map<std::string,std::string> algs;            ///< `[algs]`: flag CLI → chiave algoritmo.
+    std::map<std::string,std::string> out_files_single;///< `[out_files_single]`: flag → percorso CSV.
+    std::map<std::string,std::string> out_files_bvz;   ///< `[out_files_bvz]`: flag → CSV dataset BVZ.
+    std::map<std::string,std::string> out_files_kz2;   ///< `[out_files_kz2]`: flag → CSV dataset KZ2.
+    std::map<std::string,std::string> instances_dir;   ///< `[instances_dir]`: algoritmo → directory.
 
-    // [out_files_single]: flag → percorso CSV
-    std::map<std::string,std::string> out_files_single;
-
-    // [out_files_bvz] e [out_files_kz2]
-    std::map<std::string,std::string> out_files_bvz;
-    std::map<std::string,std::string> out_files_kz2;
-
-    // [instances_dir]: chiave algoritmo → directory
-    std::map<std::string,std::string> instances_dir;
-
-    // [dataset_reali.*]: flag → {prefix, directory, count, output_dir, out_files_key}
+    /**
+     * @brief Metadati di un dataset reale (BVZ, KZ2, ...).
+     */
     struct DatasetInfo {
-        std::string prefix, directory, output_dir, out_files_key;
-        int count;
+        std::string prefix;       ///< Prefisso del nome file (es. `"BVZ-tsukuba"`).
+        std::string directory;    ///< Directory contenente i file `.max`.
+        std::string output_dir;   ///< Directory di output per i CSV.
+        std::string out_files_key;///< Chiave per selezionare `out_files_bvz` o `out_files_kz2`.
+        int         count;        ///< Numero di istanze nel dataset.
     };
-    std::map<std::string, DatasetInfo> dataset_reali;
+
+    std::map<std::string, DatasetInfo> dataset_reali; ///< Dataset reali indicizzati per flag CLI.
 };
 
+/**
+ * @brief Carica la configurazione da un file TOML.
+ *
+ * Legge le sezioni piatte (`algs`, `out_files_single`, ecc.) e le sezioni
+ * annidate `[dataset_reali.<flag>]` convertendole in Config::DatasetInfo.
+ *
+ * @param path  Percorso del file `configmain.toml`.
+ * @return      Oggetto Config popolato.
+ * @throws std::runtime_error  Se il file non può essere aperto.
+ */
 static Config load_config(const std::string& path) {
     TomlDoc doc = parse_toml(path);
     Config cfg;
 
-    // Sezioni flat
-    for (auto& [k, v] : doc["algs"])           cfg.algs[k]            = v;
+    for (auto& [k, v] : doc["algs"])            cfg.algs[k]             = v;
     for (auto& [k, v] : doc["out_files_single"]) cfg.out_files_single[k] = v;
-    for (auto& [k, v] : doc["out_files_bvz"])  cfg.out_files_bvz[k]   = v;
-    for (auto& [k, v] : doc["out_files_kz2"])  cfg.out_files_kz2[k]   = v;
-    for (auto& [k, v] : doc["instances_dir"])  cfg.instances_dir[k]    = v;
+    for (auto& [k, v] : doc["out_files_bvz"])   cfg.out_files_bvz[k]    = v;
+    for (auto& [k, v] : doc["out_files_kz2"])   cfg.out_files_kz2[k]    = v;
+    for (auto& [k, v] : doc["instances_dir"])   cfg.instances_dir[k]     = v;
 
-    // Sezioni annidate: "dataset_reali.<flag>"
+    // Sezioni annidate: "dataset_reali.<flag>" → DatasetInfo
+    // "dataset_reali." ha lunghezza 14; il flag inizia dal carattere 14.
+    static constexpr size_t PREFIX_LEN = 14; // lunghezza di "dataset_reali."
     for (auto& [sec, kvmap] : doc) {
-        if (sec.substr(0, 15) != "dataset_reali.") continue;
-        std::string flag = sec.substr(14);  // "dataset_reali." = 14 caratteri
+        if (sec.substr(0, PREFIX_LEN) != "dataset_reali.") continue;
+        std::string flag = sec.substr(PREFIX_LEN);
         Config::DatasetInfo di;
-        di.prefix       = kvmap.count("prefix")       ? kvmap.at("prefix")       : "";
-        di.directory    = kvmap.count("directory")    ? kvmap.at("directory")    : "";
-        di.count        = kvmap.count("count")        ? std::stoi(kvmap.at("count")) : 0;
-        di.output_dir   = kvmap.count("output_dir")   ? kvmap.at("output_dir")   : "";
-        di.out_files_key= kvmap.count("out_files_key")? kvmap.at("out_files_key")  : "";
+        di.prefix        = kvmap.count("prefix")        ? kvmap.at("prefix")        : "";
+        di.directory     = kvmap.count("directory")     ? kvmap.at("directory")     : "";
+        di.count         = kvmap.count("count")         ? std::stoi(kvmap.at("count")) : 0;
+        di.output_dir    = kvmap.count("output_dir")    ? kvmap.at("output_dir")    : "";
+        di.out_files_key = kvmap.count("out_files_key") ? kvmap.at("out_files_key") : "";
         cfg.dataset_reali[flag] = di;
     }
     return cfg;
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// Utilità CSV — traduzione diretta delle funzioni Python omonime
-// ──────────────────────────────────────────────────────────────────────────────
 
+// ============================================================================
+// Utilità CSV
+// ============================================================================
+
+/**
+ * @brief Crea il file CSV con intestazione se non esiste già.
+ *
+ * Crea le directory intermedie se necessario. Se il file esiste già,
+ * non lo sovrascrive (comportamento append-safe).
+ *
+ * @param csv_path  Percorso del file CSV.
+ * @param header    Vettore dei nomi di colonna.
+ */
 static void init_csv(const std::string& csv_path,
                      const std::vector<std::string>& header) {
     fs::path p(csv_path);
@@ -173,6 +261,14 @@ static void init_csv(const std::string& csv_path,
     }
 }
 
+/**
+ * @brief Aggiunge una riga di dati a un file CSV esistente.
+ *
+ * Apre il file in modalità append e scrive i valori separati da virgola.
+ *
+ * @param csv_path  Percorso del file CSV (deve esistere con intestazione).
+ * @param row       Valori della riga, già convertiti in stringa.
+ */
 static void scrivi_riga_csv(const std::string& csv_path,
                              const std::vector<std::string>& row) {
     std::ofstream f(csv_path, std::ios::app);
@@ -181,10 +277,21 @@ static void scrivi_riga_csv(const std::string& csv_path,
     f << "\n";
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// estrai_valore_sol — traduzione di main.py::estrai_valore_sol
-// ──────────────────────────────────────────────────────────────────────────────
 
+// ============================================================================
+// Lettura soluzione di riferimento
+// ============================================================================
+
+/**
+ * @brief Legge il valore di flusso atteso da un file `.sol` DIMACS.
+ *
+ * Cerca la prima riga con tag `s` e restituisce il valore associato.
+ * Il formato atteso è: `s <valore>`.
+ *
+ * @param path  Percorso del file `.sol`.
+ * @return      Valore del flusso atteso come `long long`.
+ * @throws std::runtime_error  Se il file non esiste o non contiene la riga `s`.
+ */
 static long long estrai_valore_sol(const std::string& path) {
     std::ifstream f(path);
     if (!f.is_open()) throw std::runtime_error("File .sol non trovato: " + path);
@@ -197,32 +304,53 @@ static long long estrai_valore_sol(const std::string& path) {
     throw std::runtime_error("Nessun flusso trovato nel file: " + path);
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// scala_grafo — traduzione di main.py::scala_grafo_razionale
-// Converte capacità double → long long via scale_rationals (se necessario).
-// ──────────────────────────────────────────────────────────────────────────────
 
-using DblGraph = std::unordered_map<std::pair<int,int>, double, PairHash>;
+// ============================================================================
+// Normalizzazione del grafo
+// ============================================================================
 
+/**
+ * @brief Grafo normalizzato pronto per un solver di flusso massimo.
+ *
+ * Uno dei due campi (`graph` o `graph_dbl`) è popolato a seconda del
+ * tipo di capacità rilevato nel grafo originale.
+ */
 struct GraphScaled {
-    IntGraph  graph;      // popolato se capacità intere/razionali
-    DblGraph  graph_dbl;  // popolato se capacità double
-    long long fattore;
-    bool      is_double = false;
+    IntGraph  graph;          ///< Grafo con capacità `long long` (interi o razionali scalati).
+    DblGraph  graph_dbl;      ///< Grafo con capacità `double` (irrazionali).
+    long long fattore;        ///< Fattore di scala applicato (1 se nessuna scalatura).
+    bool      is_double = false; ///< `true` se il grafo usa `graph_dbl`.
 };
 
+/**
+ * @brief Normalizza le capacità del grafo per il solver appropriato.
+ *
+ * Seleziona una delle tre strategie in base al tipo di capacità presente:
+ *
+ * | Caso                    | Strategia                                    |
+ * |-------------------------|----------------------------------------------|
+ * | Solo interi             | Copia diretta in `IntGraph` (`fattore = 1`). |
+ * | Almeno un `double`      | Conversione tutto-double in `DblGraph`.      |
+ * | Solo `Fraction`         | Scalatura via MCM dei denominatori (scale_rationals()). |
+ *
+ * Per il caso razionale, il `fattore` restituito permette di riconvertire
+ * il flusso intero calcolato nel valore razionale corretto.
+ *
+ * @param graph_in  Grafo DIMACS con capacità di tipo `Capacity` (variant).
+ * @return          Struttura GraphScaled con grafo normalizzato e fattore di scala.
+ */
 static GraphScaled scala_grafo(const DimacsResult& graph_in) {
-    
+
     bool has_fraction = false;
     bool has_double   = false;
-    for (auto& [_, cap] : graph_in.graph) {
+    for (auto& [edge, cap] : graph_in.graph) {
+        (void)edge; // edge non usato nel controllo del tipo
         if (std::holds_alternative<Fraction>(cap)) has_fraction = true;
         if (std::holds_alternative<double>(cap))   has_double   = true;
     }
 
-    // Caso 1: solo interi
+    // Caso 1: solo interi — nessuna trasformazione necessaria
     if (!has_fraction && !has_double) {
-        //std::cout << "INTERI";
         IntGraph ig;
         for (auto& [edge, cap] : graph_in.graph)
             ig[edge] = std::visit([](auto&& v) -> long long {
@@ -235,7 +363,7 @@ static GraphScaled scala_grafo(const DimacsResult& graph_in) {
         return {std::move(ig), {}, 1LL, false};
     }
 
-    // Caso 2: ci sono double (irrazionali) — PushRelabel lavora in double con eps
+    // Caso 2: almeno una capacità double (irrazionale) — il solver lavora in double con eps
     if (has_double) {
         DblGraph dg;
         for (auto& [edge, cap] : graph_in.graph) {
@@ -264,33 +392,127 @@ static GraphScaled scala_grafo(const DimacsResult& graph_in) {
     }
 
     auto [scaled, k] = scale_rationals(vals);
-    //std::cout << "Scaling attivo: k = " << k << "  (flusso reale = flusso_intero / " << k << ")\n";
 
     IntGraph ig;
     for (size_t i = 0; i < keys.size(); ++i)
         ig[keys[i]] = scaled[i];
     return {std::move(ig), {}, static_cast<long long>(k), false};
 }
-// ──────────────────────────────────────────────────────────────────────────────
-// esegui_max_flow — traduzione di main.py::esegui_max_flow
-// Restituisce (flow, elapsed_seconds).
-// ──────────────────────────────────────────────────────────────────────────────
 
-//static std::pair<long long, double>
-// esegui_max_flow accetta il DimacsResult originale (non scalato) e il fattore
-// di scala. Ogni solver riceve il tipo di grafo che si aspetta:
-//   PushRelabel      <- IntGraph (long long, gia' scalato)
-//   CapacityScaling  <- map<pair<int,int>, Capacity> (grafo originale)
-//   AlmostLinearTime <- map<pair<int,int>, int>      (interi, fattore applicato)
+
+// ============================================================================
+// Formattazione
+// ============================================================================
+
+/**
+ * @brief Converte un valore di flusso `Capacity` in stringa leggibile.
+ *
+ * | Tipo sottostante | Formato output             |
+ * |------------------|----------------------------|
+ * | `int`            | Decimale intero.           |
+ * | `Fraction`       | `"num/den"`.               |
+ * | `double`         | Notazione decimale standard.|
+ *
+ * @param flow  Valore di flusso come `Capacity` (variant).
+ * @return      Rappresentazione stringa del flusso.
+ */
+static std::string format_flow(const Capacity& flow) {
+    return std::visit([](auto&& v) -> std::string {
+        using T = std::decay_t<decltype(v)>;
+        if constexpr (std::is_same_v<T, int>)
+            return std::to_string(v);
+        else if constexpr (std::is_same_v<T, Fraction>)
+            return std::to_string(v.num) + "/" + std::to_string(v.den);
+        else // double
+            return std::to_string(v);
+    }, flow);
+}
+
+/**
+ * @brief Formatta un tempo in secondi con 17 cifre decimali.
+ *
+ * Equivalente a `f"{elapsed:.17f}"` in Python, garantendo compatibilità
+ * esatta del formato CSV tra le due implementazioni.
+ *
+ * @param t  Tempo in secondi.
+ * @return   Stringa con 17 cifre decimali.
+ */
+static std::string fmt_time(double t) {
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(17) << t;
+    return ss.str();
+}
+
+
+// ============================================================================
+// Parsing DIMACS sicuro
+// ============================================================================
+
+/**
+ * @brief Versione sicura di parse_dimacs() che termina con messaggio d'errore.
+ *
+ * Distingue tra file non trovato e formato errato (analogamente a
+ * `FileNotFoundError` vs `ValueError` in Python) e stampa un messaggio
+ * appropriato su stderr prima di terminare il programma.
+ *
+ * @param path  Percorso del file DIMACS `.max`.
+ * @return      DimacsResult con il grafo analizzato.
+ * @note        Non ritorna mai in caso di errore (chiama `std::exit(1)`).
+ */
+[[nodiscard]] static DimacsResult parse_dimacs_safe(const std::string& path) {
+    try {
+        return parse_dimacs(path);
+    } catch (const std::runtime_error& e) {
+        std::string what = e.what();
+        if (what.find("not found")   != std::string::npos ||
+            what.find("non trovato") != std::string::npos ||
+            what.find("open")        != std::string::npos) {
+            std::cerr << "Errore: file non trovato: \"" << path << "\"\n";
+        } else {
+            std::cerr << "Errore nel parsing di \"" << path << "\": " << what << "\n";
+        }
+        std::exit(1);
+    }
+}
+
+
+// ============================================================================
+// Esecuzione del solver
+// ============================================================================
+
+/**
+ * @brief Esegue il solver di flusso massimo selezionato e misura il tempo.
+ *
+ * Smista la chiamata all'algoritmo giusto in base al parametro @p algorithm,
+ * passando il tipo di grafo corretto (intero o double) a seconda di
+ * GraphScaled::is_double.
+ *
+ * Per i grafi razionali scalati, applica la funzione `descala` per
+ * ricondurre il flusso intero calcolato al valore Capacity originale
+ * (int, Fraction o double), semplificando la frazione tramite MCD.
+ *
+ * @param algorithm  Nome dell'algoritmo: `"push_relabel"`, `"capacity_scaling"`
+ *                   o `"almost_linear_time"`.
+ * @param gs         Grafo normalizzato con fattore di scala.
+ * @param source     Nodo sorgente (identificatore originale).
+ * @param sink       Nodo pozzo (identificatore originale).
+ * @return           Coppia `(flusso massimo, tempo_elapsed_in_secondi)`.
+ *
+ * @note Se source è isolato (nessun arco uscente), il solver lancia
+ *       `std::out_of_range`; in questo caso il flusso viene impostato a 0.
+ *
+ * @throws std::runtime_error  Se @p algorithm non è riconosciuto.
+ * @throws std::runtime_error  Se `almost_linear_time` viene usato con
+ *                             capacità non intere.
+ */
 static std::pair<Capacity, double>
 esegui_max_flow(const std::string& algorithm,
-                const DimacsResult& pg_orig,
                 const GraphScaled& gs,
                 int source, int sink) {
     auto t0 = std::chrono::high_resolution_clock::now();
     Capacity flow = 0;
 
-    // Helper lambda: converte long long + fattore → Capacity corretta
+    // Converti long long + fattore di scala → Capacity (int, Fraction o double)
     auto descala = [&](long long f) -> Capacity {
         if (gs.fattore == 1) {
             return static_cast<int>(f);
@@ -298,8 +520,6 @@ esegui_max_flow(const std::string& algorithm,
         long long g   = std::gcd(f, gs.fattore);
         long long num = f          / g;
         long long den = gs.fattore / g;
-        //std::cout << "descala: f=" << f << " fattore=" << gs.fattore
-        //        << " -> num=" << num << " den=" << den << "\n";
         if (num > std::numeric_limits<int>::max() || den > std::numeric_limits<int>::max())
             return static_cast<double>(num) / static_cast<double>(den);
         return Fraction(static_cast<int>(num), static_cast<int>(den));
@@ -327,19 +547,23 @@ esegui_max_flow(const std::string& algorithm,
                 auto raw = solver.max_flow(source, sink);
                 flow = descala(std::get<long long>(raw));
             }
+
         } else if (algorithm == "almost_linear_time") {
             if (gs.is_double || gs.fattore != 1) {
-                throw std::runtime_error("almost_linear_time supporta solo capacit\xA0 intere.");
+                throw std::runtime_error(
+                    "almost_linear_time supporta solo capacità intere.");
             }
             std::map<std::pair<int,int>, long long> int_map;
             for (auto& [edge, cap] : gs.graph)
                 int_map[edge] = static_cast<long long>(cap);
             AlmostLinearTime solver(int_map);
             flow = descala(static_cast<long long>(solver.max_flow(source, sink)));
+
         } else {
             throw std::runtime_error("Algoritmo sconosciuto: '" + algorithm + "'.");
         }
     } catch (const std::out_of_range&) {
+        // Source isolato (nessun arco uscente): flusso massimo = 0 per definizione
         std::cout << "Source isolato → flusso = 0\n";
         flow = 0;
     }
@@ -349,53 +573,29 @@ esegui_max_flow(const std::string& algorithm,
     return {flow, elapsed};
 }
 
-static std::string format_flow(const Capacity& flow) {
-    return std::visit([](auto&& v) -> std::string {
-        using T = std::decay_t<decltype(v)>;
-        if constexpr (std::is_same_v<T, int>)
-            return std::to_string(v);
-        else if constexpr (std::is_same_v<T, Fraction>)
-            return std::to_string(v.num) + "/" + std::to_string(v.den);
-        else  // double
-            return std::to_string(v);
-    }, flow);
-}
 
-// Helper: formatta double con 17 cifre decimali (come f"{elapsed:.17f}" in Python)
-static std::string fmt_time(double t) {
-    std::ostringstream ss;
-    ss << std::fixed << std::setprecision(17) << t;
-    return ss.str();
-}
+// ============================================================================
+// Benchmark su dataset reali
+// ============================================================================
 
-// ──────────────────────────────────────────────────────────────────────────────
-// parse_dimacs_safe — traduzione di main.py::parse_dimacs_safe
-// In caso di file mancante o formato errato termina il programma con messaggio.
-// ──────────────────────────────────────────────────────────────────────────────
-
-[[nodiscard]] static DimacsResult parse_dimacs_safe(const std::string& path) {
-    try {
-        return parse_dimacs(path);
-    } catch (const std::runtime_error& e) {
-        std::string what = e.what();
-        // Distingue file mancante da formato errato (come FileNotFoundError vs ValueError in Python)
-        if (what.find("not found") != std::string::npos ||
-            what.find("non trovato") != std::string::npos ||
-            what.find("open") != std::string::npos) {
-            std::cerr << "Errore: file non trovato: \"" << path << "\"\n";
-        } else {
-            std::cerr << "Errore nel parsing di \"" << path << "\": " << what << "\n";
-        }
-        std::exit(1);
-    }
-}
-
-// format_flow rimossa: sostituita dalla versione Capacity sopra
-
-// ──────────────────────────────────────────────────────────────────────────────
-// run_benchmark_reale — traduzione di main.py::run_benchmark_reale
-// ──────────────────────────────────────────────────────────────────────────────
-
+/**
+ * @brief Esegue il benchmark su un dataset reale (BVZ o KZ2).
+ *
+ * Per ogni istanza `i` in `[0, count)`:
+ * 1. Legge `<directory>/<prefix><i>.max`.
+ * 2. Esegue il solver e misura il tempo.
+ * 3. Se esiste `<directory>/<prefix><i>.sol`, verifica la correttezza
+ *    confrontando il flusso calcolato con il valore atteso.
+ * 4. Scrive una riga nel CSV di output.
+ *
+ * @param algorithm   Nome dell'algoritmo da usare.
+ * @param prefix      Prefisso dei file del dataset (es. `"BVZ-tsukuba"`).
+ * @param directory   Directory contenente i file `.max` e `.sol`.
+ * @param count       Numero di istanze nel dataset (indici 0-based).
+ * @param output_dir  Directory di output per il CSV.
+ * @param out_files   Mappa algoritmo → percorso CSV (da `Config::out_files_bvz`
+ *                    o `Config::out_files_kz2`).
+ */
 static void run_benchmark_reale(
     const std::string& algorithm,
     const std::string& prefix,
@@ -404,12 +604,9 @@ static void run_benchmark_reale(
     const std::string& output_dir,
     const std::map<std::string,std::string>& out_files)
 {
-    // Ricava il nome del file CSV dall'out_files dell'algoritmo
     fs::path csv_path = fs::path(output_dir) /
                         fs::path(out_files.at(algorithm)).filename();
-    
-    std::cout <<csv_path; //capire l'output nel debug
-    
+
     init_csv(csv_path.string(),
              {"n", "m", "time_seconds", "flow", "graph_file", "correctness"});
 
@@ -420,14 +617,14 @@ static void run_benchmark_reale(
         DimacsResult pg = parse_dimacs_safe(base + ".max");
 
         auto gs = scala_grafo(pg);
-        auto [flow, elapsed] = esegui_max_flow(algorithm, pg, gs, pg.source, pg.sink);
+        auto [flow, elapsed] = esegui_max_flow(algorithm, gs, pg.source, pg.sink);
 
         std::string correctness = "N/A";
         std::string sol_path    = base + ".sol";
         std::string flow_str    = format_flow(flow);
+
         if (fs::exists(sol_path)) {
             long long sol = estrai_valore_sol(sol_path);
-            // Confronto: converte flow a double per supportare Fraction e double
             double flow_d = std::visit([](auto&& v) -> double {
                 using T = std::decay_t<decltype(v)>;
                 if constexpr (std::is_same_v<T, Fraction>) return v.to_double();
@@ -452,10 +649,31 @@ static void run_benchmark_reale(
     }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// run_benchmark_sintetico — traduzione di main.py::run_benchmark_sintetico
-// ──────────────────────────────────────────────────────────────────────────────
 
+// ============================================================================
+// Benchmark sintetico
+// ============================================================================
+
+/**
+ * @brief Esegue il benchmark su istanze sintetiche (layered e grid).
+ *
+ * Visita ricorsivamente @p instances_dir cercando file `.max` con nomi
+ * conformi ai pattern:
+ * - `layered_n<N>_d<D>_seed<S>.max`
+ * - `grid_n<N>_d<D>_seed<S>.max`
+ *
+ * Per ogni istanza esegue @p runs_per_instance misurazioni, scarta la prima
+ * (warmup) e riporta la mediana delle restanti.
+ *
+ * Le istanze vengono ordinate per `graph_type → cap_type → d → n → seed`
+ * prima dell'esecuzione, garantendo output riproducibile.
+ *
+ * @param algorithm          Nome dell'algoritmo da usare.
+ * @param instances_dir      Directory radice delle istanze sintetiche.
+ * @param out_dir            Directory di output per il CSV.
+ * @param runs_per_instance  Numero di ripetizioni per istanza (default: 7).
+ *                           La prima viene sempre scartata come warmup.
+ */
 static void run_benchmark_sintetico(
     const std::string& algorithm,
     const std::string& instances_dir,
@@ -467,24 +685,24 @@ static void run_benchmark_sintetico(
                          "median_time","flow","graph_file"});
     std::cout << "Location risultati: " << csv_path << "\n";
 
-    // Pattern nomi file: stessi regex del Python
     std::regex pattern_layered(R"(layered_n(\d+)_d(\d+)_seed(\d+)\.max$)");
     std::regex pattern_grid   (R"(grid_n(\d+)_d(\d+)_seed(\d+)\.max$)");
 
-    // 1) Raccolta file
+    // Struttura interna per raccogliere i metadati di ogni file prima dell'esecuzione
     struct Entry {
         std::string graph_type, cap_type, path, filename;
         int d, n, seed;
     };
     std::vector<Entry> entries;
 
+    // 1) Raccolta ricorsiva dei file .max conformi al pattern
     for (auto& cap_entry : fs::directory_iterator(instances_dir)) {
         if (!cap_entry.is_directory()) continue;
         std::string cap_type = cap_entry.path().filename().string();
 
         for (auto& nd_entry : fs::directory_iterator(cap_entry.path())) {
             if (!nd_entry.is_directory()) continue;
-            std::string nd_group  = nd_entry.path().filename().string();
+            std::string nd_group   = nd_entry.path().filename().string();
             std::string graph_type = (nd_group.rfind("grid", 0) == 0) ? "grid" : "layered";
             const std::regex& pat  = (graph_type == "grid") ? pattern_grid : pattern_layered;
 
@@ -505,7 +723,7 @@ static void run_benchmark_sintetico(
         }
     }
 
-    // 2) Ordinamento: graph_type → cap_type → d → n → seed
+    // 2) Ordinamento riproducibile: graph_type → cap_type → d → n → seed
     std::sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) {
         if (a.graph_type != b.graph_type) return a.graph_type < b.graph_type;
         if (a.cap_type   != b.cap_type)   return a.cap_type   < b.cap_type;
@@ -514,7 +732,7 @@ static void run_benchmark_sintetico(
         return a.seed < b.seed;
     });
 
-    // 3) Benchmark
+    // 3) Benchmark: runs_per_instance ripetizioni, mediana delle ultime (n-1)
     for (auto& e : entries) {
         std::cout << "Processing (type=" << e.graph_type
                   << ", cap=" << e.cap_type
@@ -529,20 +747,21 @@ static void run_benchmark_sintetico(
         }
 
         auto gs = scala_grafo(pg);
-        //std::cout << "use_scale = " << (gs.fattore != 1 ) << "\n";
 
         std::vector<double> times;
         Capacity flow_value = 0;
 
         for (int r = 0; r < runs_per_instance; ++r) {
-            auto [flow, elapsed] = esegui_max_flow(algorithm, pg, gs, pg.source, pg.sink);
+            auto [flow, elapsed] = esegui_max_flow(algorithm, gs, pg.source, pg.sink);
             if (r == 0) flow_value = flow;
             times.push_back(elapsed);
         }
 
-        // Scarta il primo (warmup) e calcola la mediana del resto
+        // Scarta il primo run (warmup) e calcola la mediana del resto
         std::vector<double> rest(times.begin() + 1, times.end());
         std::sort(rest.begin(), rest.end());
+
+        // Mediana: elemento centrale per dispari, media dei due centrali per pari
         double median_time = rest[rest.size() / 2];
         if (rest.size() % 2 == 0)
             median_time = (rest[rest.size()/2 - 1] + rest[rest.size()/2]) / 2.0;
@@ -550,7 +769,6 @@ static void run_benchmark_sintetico(
         std::cout << "median_time = " << std::fixed << std::setprecision(6)
                   << median_time << "s\n";
 
-        // Flusso reale (come format_flow in Python)
         std::string flow_str = format_flow(flow_value);
 
         scrivi_riga_csv(csv_path, {
@@ -564,10 +782,21 @@ static void run_benchmark_sintetico(
     }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// run_esperimento_singolo — traduzione di main.py::run_esperimento_singolo
-// ──────────────────────────────────────────────────────────────────────────────
 
+// ============================================================================
+// Esperimento su singolo file
+// ============================================================================
+
+/**
+ * @brief Esegue il solver su un singolo file `.max` e registra i risultati.
+ *
+ * Stampa su stdout le informazioni del grafo, il flusso calcolato e il tempo
+ * impiegato. Scrive una riga nel CSV specificato.
+ *
+ * @param algorithm   Nome dell'algoritmo da usare.
+ * @param graph_file  Percorso del file DIMACS `.max`.
+ * @param csv_file    Percorso del file CSV di output (creato se non esiste).
+ */
 static void run_esperimento_singolo(
     const std::string& algorithm,
     const std::string& graph_file,
@@ -576,55 +805,62 @@ static void run_esperimento_singolo(
     init_csv(csv_file, {"n","m","time_seconds","flow","graph_file"});
 
     DimacsResult pg = parse_dimacs_safe(graph_file);
-
-    for (const auto& [edge, cap] : pg.graph) {
-        double c = std::visit([](auto&& x) -> double {
-            using T = std::decay_t<decltype(x)>;
-            if constexpr (std::is_same_v<T, int> || std::is_same_v<T, double>)
-                return static_cast<double>(x);
-            else
-                return static_cast<double>(x.num) / static_cast<double>(x.den);
-        }, cap);
-    }
-    
     auto gs = scala_grafo(pg);
 
     std::cout << "File   : " << graph_file   << "\n";
     std::cout << "Source : " << pg.source << "   Sink : " << pg.sink << "\n";
     std::cout << "Archi  : " << pg.graph.size() << "\n\n";
 
-    auto [flow, elapsed] = esegui_max_flow(algorithm, pg, gs, pg.source, pg.sink);
+    auto [flow, elapsed] = esegui_max_flow(algorithm, gs, pg.source, pg.sink);
 
     std::string flow_str = format_flow(flow);
-
-    std::cout << "flow = " << flow_str << "\n";
-    scrivi_riga_csv(csv_file, {
-        std::to_string(pg.n), std::to_string(pg.m_actual),
-        fmt_time(elapsed), flow_str, graph_file
-    });
 
     double flow_d = std::visit([](auto&& v) -> double {
         using T = std::decay_t<decltype(v)>;
         if constexpr (std::is_same_v<T, Fraction>) return v.to_double();
         else return static_cast<double>(v);
     }, flow);
+
     std::cout << "Flow = " << flow_str
               << "  (reale = " << std::fixed << std::setprecision(6)
               << flow_d << ")\n";
     std::cout << "Tempo = " << std::fixed << std::setprecision(6) << elapsed << " s\n";
+
+    scrivi_riga_csv(csv_file, {
+        std::to_string(pg.n), std::to_string(pg.m_actual),
+        fmt_time(elapsed), flow_str, graph_file
+    });
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// main — traduzione di main.py __main__
-// ──────────────────────────────────────────────────────────────────────────────
 
+// ============================================================================
+// main
+// ============================================================================
+
+/**
+ * @brief Punto di ingresso del programma.
+ *
+ * Legge la configurazione da `configs/configmain.toml` (relativo alla
+ * directory dell'eseguibile), analizza gli argomenti CLI e smista verso
+ * la modalità di esecuzione appropriata:
+ *
+ * | Argomento 2 (`argv[2]`) | Modalità                       |
+ * |-------------------------|--------------------------------|
+ * | `-BVZ` / `-KZ2`         | Benchmark su dataset reale.    |
+ * | `-SINTH`                | Benchmark su istanze sintetiche.|
+ * | `<file.max>`            | Singola istanza.               |
+ *
+ * Se il TOML non contiene i dataset reali, vengono applicati valori
+ * hardcoded di fallback per BVZ-tsukuba e KZ2-venus.
+ *
+ * @param argc  Numero di argomenti CLI (minimo 2, o 3 per la maggior parte delle modalità).
+ * @param argv  Array di argomenti: `argv[1]` = flag algoritmo, `argv[2]` = dataset/file.
+ * @return      0 in caso di successo, 1 in caso di errore.
+ */
 int main(int argc, char* argv[]) {
-    
 
-
-
-    // Trova la directory dell'eseguibile per risolvere il percorso del config
-    fs::path exe_dir = fs::path(argv[0]).parent_path();
+    // Risolve il percorso del config rispetto alla directory dell'eseguibile
+    fs::path exe_dir  = fs::path(argv[0]).parent_path();
     fs::path cfg_path = exe_dir / "configs" / "configmain.toml";
 
     Config cfg;
@@ -636,34 +872,25 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-        // HARDCODED FALLBACK — dataset_reali
-    {
+    // Fallback hardcoded per i dataset reali se non presenti nel TOML
+    if (!cfg.dataset_reali.count("-BVZ")) {
         Config::DatasetInfo bvz;
-        bvz.prefix       = "BVZ-tsukuba";
-        bvz.directory    = "benchmarkreali/BVZ-tsukuba";
-        bvz.count        = 16;
-        bvz.output_dir   = "benchmarkBVZ";
+        bvz.prefix        = "BVZ-tsukuba";
+        bvz.directory     = "benchmarkreali/BVZ-tsukuba";
+        bvz.count         = 16;
+        bvz.output_dir    = "benchmarkBVZ";
         bvz.out_files_key = "out_files_bvz";
         cfg.dataset_reali["-BVZ"] = bvz;
-
+    }
+    if (!cfg.dataset_reali.count("-KZ2")) {
         Config::DatasetInfo kz2;
-        kz2.prefix       = "KZ2-venus";
-        kz2.directory    = "benchmarkreali/KZ2-venus";
-        kz2.count        = 22;
-        kz2.output_dir   = "benchmarkKZ2";
+        kz2.prefix        = "KZ2-venus";
+        kz2.directory     = "benchmarkreali/KZ2-venus";
+        kz2.count         = 22;
+        kz2.output_dir    = "benchmarkKZ2";
         kz2.out_files_key = "out_files_kz2";
         cfg.dataset_reali["-KZ2"] = kz2;
     }
-
-
-
-
-    //debug
-    /*    std::cout << "=== dataset_reali caricati ===\n";
-    for (auto& [k, v] : cfg.dataset_reali)
-        std::cout << "  [" << k << "] prefix=" << v.prefix << "\n";
-    std::cout << "==============================\n";*/
-
 
     if (argc == 1) {
         std::cerr << "Utilizzo: " << argv[0] << " <flag> [dataset|file]\n";
@@ -672,17 +899,19 @@ int main(int argc, char* argv[]) {
 
     std::string alg_flag = argv[1];
 
-    // ── -fullsuite ─────────────────────────────────────────────────────────
+    // ── -fullsuite: esegue tutti gli algoritmi su tutti i dataset sintetici ──
     if (alg_flag == "-fullsuite") {
-        for (auto& [alg_name, inst_dir] : cfg.instances_dir) {
+        for (auto& [alg_name, inst_dir] : cfg.instances_dir)
             run_benchmark_sintetico(alg_name, inst_dir, "benchmarksintetici");
-        }
         return 0;
     }
 
     if (cfg.algs.find(alg_flag) == cfg.algs.end()) {
         std::cerr << "Argomento sconosciuto: " << alg_flag << ". Usa uno tra:";
-        for (auto& [k, _] : cfg.algs) std::cerr << " " << k;
+        for (auto& [k, v] : cfg.algs) {
+            (void)v;
+            std::cerr << " " << k;
+        }
         std::cerr << "\n";
         return 1;
     }
@@ -694,27 +923,27 @@ int main(int argc, char* argv[]) {
 
     std::string algorithm = cfg.algs.at(alg_flag);
     std::string dataset   = argv[2];
-    // ── Dataset reali ──────────────────────────────────────────────────────
+
+    // ── Dataset reale (es. -BVZ, -KZ2) ──────────────────────────────────────
     if (cfg.dataset_reali.count(dataset)) {
-        
         auto& di = cfg.dataset_reali.at(dataset);
         const auto& out_files = (di.out_files_key == "out_files_bvz")
                                 ? cfg.out_files_bvz
                                 : cfg.out_files_kz2;
         run_benchmark_reale(algorithm, di.prefix, di.directory,
                             di.count, di.output_dir, out_files);
-    }
-    // ── Benchmark sintetico ────────────────────────────────────────────────
-    else if (dataset == "-SINTH") {
+
+    // ── Benchmark sintetico ──────────────────────────────────────────────────
+    } else if (dataset == "-SINTH") {
         if (cfg.instances_dir.find(algorithm) == cfg.instances_dir.end()) {
             std::cerr << "Nessuna directory di istanze configurata per: " << algorithm << "\n";
             return 1;
         }
         run_benchmark_sintetico(algorithm, cfg.instances_dir.at(algorithm),
                                 "benchmarksintetici");
-    }
-    // ── Singolo file .max ──────────────────────────────────────────────────
-    else {
+
+    // ── Singolo file .max ────────────────────────────────────────────────────
+    } else {
         if (cfg.out_files_single.find(alg_flag) == cfg.out_files_single.end()) {
             std::cerr << "Nessun file CSV configurato per: " << alg_flag << "\n";
             return 1;

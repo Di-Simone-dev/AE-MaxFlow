@@ -46,5 +46,6 @@ add_executable(maxflow
 if(MSVC)
     target_compile_options(maxflow PRIVATE /W4 /EHsc)
 else()
+    #target_compile_options(maxflow PRIVATE -O3  -DNDEBUG)
     target_compile_options(maxflow PRIVATE -Wall -Wextra -Wpedantic)
 endif()

@@ -58,3 +58,6 @@ n,m,time_seconds,flow,graph_file
 1000,1795,0.01134310000000000,0.386671,.\graphs\pr_cs\irrational\grid1000_d5\grid_n1000_d5_seed4.max
 80,139,0.00017390000000000,2,.\graphs\al\unit\grid80_d5\grid_n80_d5_seed0.max
 80,139,0.00018090000000000,2,.\graphs\al\unit\grid80_d5\grid_n80_d5_seed0.max
+10,13,0.00003230000000000,427,.\graphs\al\int\grid10_d5\grid_n10_d5_seed0.max
+10,13,0.00001940000000000,612,.\graphs\al\int\grid10_d5\grid_n10_d5_seed3.max
+10,13,0.00001430000000000,529,.\graphs\al\int\grid10_d5\grid_n10_d5_seed1.max
