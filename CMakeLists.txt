@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(MaxFlow CXX)
 
+find_package(Doxygen REQUIRED)
+add_custom_target(doc
+    COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_SOURCE_DIR}/Doxyfile
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -46,6 +53,6 @@ add_executable(maxflow
 if(MSVC)
     target_compile_options(maxflow PRIVATE /W4 /EHsc)
 else()
-    #target_compile_options(maxflow PRIVATE -O3  -DNDEBUG)
-    target_compile_options(maxflow PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(maxflow PRIVATE -O3  -DNDEBUG)
+    #target_compile_options(maxflow PRIVATE -Wall -Wextra -Wpedantic)
 endif()
