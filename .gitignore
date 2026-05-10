@@ -1,7 +1,8 @@
 .vscode
-benchmark/
+benchmarkBVZ/
+benchmarkKZ2/
+benchmarksingoli/
 benchmarksintetici/
-benchmarkresults/
 plots/
 graphs/
 build/*
