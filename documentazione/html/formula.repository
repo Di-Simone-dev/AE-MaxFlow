@@ -1,0 +1,5 @@
+\_form#0:$ \frac{p_i}{q_i} $
+\_form#1:$ k = \mathrm{lcm}(q_1, q_2, \ldots, q_n) $
+\_form#2:\[
+  \left( \left\{ p_i \cdot \frac{k}{q_i} \right\}_{i=1}^{n},\ k \right)
+\]

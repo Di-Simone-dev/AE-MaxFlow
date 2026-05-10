@@ -1,0 +1,12 @@
+digraph "src/almost_linear/almost_linear_time.hpp"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  Node1 [id="Node000001",label="src/almost_linear/almost\l_linear_time.hpp",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Dichiarazione del solver per il problema di massimo flusso con complessità quasi-lineare basato su in..."];
+  Node1 -> Node2 [id="edge1_Node000001_Node000002",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node2 [id="Node000002",label="src/almost_linear/almost\l_linear_time.cpp",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$almost__linear__time_8cpp.html",tooltip="Implementazione del solver AlmostLinearTime per il problema di massimo flusso."];
+  Node1 -> Node3 [id="edge2_Node000001_Node000003",dir="back",color="steelblue1",style="solid",tooltip=" "];
+  Node3 [id="Node000003",label="src/main.cpp",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$main_8cpp.html",tooltip="Entry point e orchestrazione del benchmark di algoritmi di flusso massimo."];
+}

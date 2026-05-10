@@ -1,0 +1,15 @@
+digraph "almost_linear::calc_feasible_flow"
+{
+ // LATEX_PDF_SIZE
+  bgcolor="transparent";
+  edge [fontname=Helvetica,fontsize=10,labelfontname=Helvetica,labelfontsize=10];
+  node [fontname=Helvetica,fontsize=10,shape=box,height=0.2,width=0.4];
+  rankdir="LR";
+  Node1 [id="Node000001",label="almost_linear::calc\l_feasible_flow",height=0.2,width=0.4,color="gray40", fillcolor="grey60", style="filled", fontcolor="black",tooltip="Calcola un flusso ammissibile iniziale per il loop interior-point."];
+  Node1 -> Node2 [id="edge1_Node000001_Node000002",color="steelblue1",style="solid",tooltip=" "];
+  Node2 [id="Node000002",label="MinCostFlow::add_edge",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_min_cost_flow.html#ac887b7df34b17bc59aee9faaedfa0057",tooltip="Aggiunge un nuovo arco orientato (a → b) al grafo."];
+  Node1 -> Node3 [id="edge2_Node000001_Node000003",color="steelblue1",style="solid",tooltip=" "];
+  Node3 [id="Node000003",label="MinCostFlow::add_vertex",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_min_cost_flow.html#a7fedd2e5a5e8b0393ce32a2139d71633",tooltip="Aggiunge un nuovo nodo isolato al grafo e restituisce il suo indice."];
+  Node1 -> Node4 [id="edge3_Node000001_Node000004",color="steelblue1",style="solid",tooltip=" "];
+  Node4 [id="Node000004",label="MinCostFlow::clone",height=0.2,width=0.4,color="grey40", fillcolor="white", style="filled",URL="$class_min_cost_flow.html#ae90f8054b0983dbc97413f959f88e092",tooltip="Produce una copia profonda dell'istanza corrente."];
+}
