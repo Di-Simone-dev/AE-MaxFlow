@@ -1,0 +1,4 @@
+
+doxygen -g          # crea il Doxyfile
+doxygen Doxyfile    # genera la documentazione
+start html/index.html
