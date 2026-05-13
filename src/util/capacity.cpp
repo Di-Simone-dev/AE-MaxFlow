@@ -9,8 +9,6 @@
  * - `add_capacity()`: somma robusta con promozione minima del tipo.
  * - `parse_capacity()`: parser completo di stringhe DIMACS in `Capacity`.
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #include "capacity.hpp"

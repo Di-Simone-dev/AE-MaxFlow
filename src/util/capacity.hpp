@@ -17,8 +17,6 @@
  * a lungo possibile (es. somme fra frazioni) cadendo su `double` solo quando
  * necessario (es. valori irrazionali).
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 // ---------------------------------------------------------------------------

@@ -13,8 +13,6 @@
  * @note Questa classe è usata da `Capacity` (capacity.hpp) per rappresentare
  *       capacità frazionarie esatte nei grafi di flusso DIMACS.
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #pragma once

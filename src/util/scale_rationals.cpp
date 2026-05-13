@@ -4,8 +4,6 @@
  *
  * @see scale_rationals.hpp
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #include "scale_rationals.hpp"

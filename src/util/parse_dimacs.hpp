@@ -17,8 +17,6 @@
  * @see capacity.hpp
  * @see parse_dimacs.cpp
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #pragma once

@@ -12,8 +12,6 @@
  *
  * @see fraction.hpp
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #include "fraction.hpp"

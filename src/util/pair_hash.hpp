@@ -19,8 +19,6 @@
  * edge_capacity[{1, 2}] = 3.5;
  * @endcode
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #pragma once

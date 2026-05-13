@@ -8,8 +8,6 @@
  *
  * @see pair_hash.hpp
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #include <pair_hash.hpp>

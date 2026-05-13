@@ -12,8 +12,6 @@
  * @see scale_rationals.cpp
  * @see fraction.hpp
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #pragma once

@@ -9,8 +9,6 @@
  *
  * @see parse_dimacs.hpp
  *
- * @author  [inserire autore]
- * @date    [inserire data]
  */
 
 #include "parse_dimacs.hpp"
