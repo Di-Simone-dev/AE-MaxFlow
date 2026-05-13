@@ -44,11 +44,7 @@ cmake -S . -B build -G "MinGW Makefiles"
 cmake --build ./build
 ```
 
-L'eseguibile risultante sarà disponibile in:
-
-```
-./build/maxflow.exe
-```
+L'eseguibile risultante sarà disponibile nella directory principale del progetto.
 
 ## 7. Esecuzione dell'algoritmo MaxFlow
 
