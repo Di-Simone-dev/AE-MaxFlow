@@ -1,71 +1,122 @@
-# ── Output ────────────────────────────────────────────────────────────────────
-
-[output]
-outdir = "graphs/pr_cs"
-
-
 # ── Capacity ranges ────────────────────────────────────────────────────────────
-# Used by _random_int_capacity, _random_rational_capacity, _random_irrational_capacity
+# Usati da _random_int_capacity, _random_rational_capacity, _random_irrational_capacity
 
 [capacity]
-lo = 200
-hi = 1000
-
-# Big-int capacity used as upper bound for s/t arcs.
-# Set to 0 to generate a fresh random value in [capacity.lo, capacity.hi] at runtime.
-big_int = 0   # 0 = random each run
+lo      = 127
+hi      = 1023
+big_int = 0      # 0 = valore casuale in [lo, hi] a ogni run
 
 
-# ── Layered network batch ──────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+#  PR  —  Push-Relabel
+#  Doubling: solo n (vertici).  d e capacità rimangono fissi.
+# ══════════════════════════════════════════════════════════════════════════════
 
-[layered]
-n_values           = [500, 1000, 2000, 4000]
-d_values           = [4, 6, 8, 10]
-cap_types          = ["int", "rational", "irrational", "unit"]
-instances_per_combo = 30
+[pr]
+outdir = "graphs/pr"
+
+[pr.layered]
+# n raddoppia a ogni step: 250 → 500 → 1000 → 2000 → 4000
+n_values            = [250, 500, 1000, 2000, 4000]
+d_values            = [6]  #tolti 4,8,10
+cap_types           = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 3
+
+[pr.grid]
+# n raddoppia; d (righe) fisso — ogni n deve essere divisibile per d
+n_values            = [250, 500, 1000, 2000, 4000]
+d                   = 5
+cap_types           = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 3
+
+[pr.erdag]
+# n raddoppia; p fissa (outdegree atteso ≈ d_expected)
+# p = d_expected / (n - 1);  qui p è specificata direttamente per semplicità
+n_values            = [250, 500, 1000, 2000, 4000]
+p_values            = [0.02]    # outdegree atteso ≈ p*(n-1)
+cap_types           = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 3
 
 
-# ── Grid network batch ────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+#  CS  —  Capacity Scaling
+#  Doubling: d (→ più archi)  E  hi (→ capacità massima).  n fisso.
+#
+#  d_steps e hi_steps sono paired per indice:
+#    step 0 → d=d_steps[0], hi=hi_steps[0]
+#    step 1 → d=d_steps[1], hi=hi_steps[1]
+#    ...
+#  Per i grafi ER-DAG p viene derivata automaticamente come d/(n-1).
+# ══════════════════════════════════════════════════════════════════════════════
 
-[grid]
-n_values           = [500, 1000, 2000, 4000]
-d                  = 5
-cap_types          = ["int", "rational", "irrational", "unit"]
-instances_per_combo = 20
+[cs]
+outdir   = "graphs/cs"
+d_steps  = [4, 8, 16, 32, 64]   # outdegree raddoppia a ogni step
+hi_steps = [255, 511, 1023, 2047, 4095]  # capacità massima raddoppia a ogni step
+
+[cs.layered]
+n_values            = [1000]
+cap_types           = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 3
+
+[cs.grid]
+# d delle righe del grid rimane fisso (deve dividere n)
+n_values            = [1000]
+d                   = 5
+cap_types           = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 3
+
+[cs.erdag]
+# p derivata automaticamente come d_step / (n - 1) per ogni n
+n_values            = [1000]
+cap_types           = ["int", "rational", "irrational", "unit"]
+instances_per_combo = 3
 
 
-# ── Almost-linear-time batch ──────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+#  AL  —  Almost-Linear Time
+#  Invariato: doubling di n su taglie piccole.
+# ══════════════════════════════════════════════════════════════════════════════
 
 [almost_linear]
 outdir = "graphs/al"
 
 [almost_linear.layered]
-n_values           = [10, 20, 40, 80]
-d_values           = [4]
-cap_types          = ["int", "rational", "irrational", "unit"]
-instances_per_combo = 30
-
-
-# ── Almost-linear-time batch (grid) ───────────────────────────────────────────
+n_values            = [10] #[10, 20, 40, 80]
+d_values            = [4, 8, 16, 32, 64]
+cap_types           = ["int","unit"]
+instances_per_combo = 3
 
 [almost_linear.grid]
-n_values           = [10, 20, 40, 80]
-d                  = 5
-cap_types          = ["int", "rational", "irrational", "unit"]
-instances_per_combo = 20
+n_values            = [5, 10, 20, 40, 80] #[10, 20, 40, 80]
+d                   = 5
+cap_types           = ["int","unit"]
+instances_per_combo = 3
+
+[almost_linear.erdag]
+# p fissa; outdegree atteso ≈ p*(n-1)
+n_values            = [20] #[10, 20, 40, 80]
+p_values            = [0.04,0.08,0.16,0.32,0.64]
+cap_types           = ["int","unit"]
+instances_per_combo = 3
+
 
 # ── Plotting ───────────────────────────────────────────────────────────────────
- 
+
 [plots]
 outdir = "plots"
- 
+
 [plots.style.layered]
 color        = "steelblue"
 label_prefix = "Layered networks"
- 
+
 [plots.style.grid]
 color        = "darkorange"
 label_prefix = "Grid networks"
+
+[plots.style.erdag]
+color        = "seagreen"
+label_prefix = "ER-DAG networks"
 
 # ── Run 1 ─────────────────────────────────────────────────────────────────────
 [[runs]]

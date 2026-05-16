@@ -53,6 +53,7 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+#include <set>
 
 #include "src/util/parse_dimacs.hpp"
 #include "src/util/capacity.hpp"
@@ -655,56 +656,85 @@ static void run_benchmark_reale(
 // ============================================================================
 
 /**
- * @brief Esegue il benchmark su istanze sintetiche (layered e grid).
+ * @brief Esegue il benchmark su istanze sintetiche (layered, grid ed erdag).
  *
  * Visita ricorsivamente @p instances_dir cercando file `.max` con nomi
  * conformi ai pattern:
  * - `layered_n<N>_d<D>_seed<S>.max`
  * - `grid_n<N>_d<D>_seed<S>.max`
+ * - `erdag_n<N>_p<P>_<DENSITY>_seed<S>.max`
  *
  * Per ogni istanza esegue @p runs_per_instance misurazioni, scarta la prima
  * (warmup) e riporta la mediana delle restanti.
  *
  * Le istanze vengono ordinate per `graph_type → cap_type → d → n → seed`
  * prima dell'esecuzione, garantendo output riproducibile.
+ * Per i grafi erdag il campo @c d nel CSV corrisponde al parametro
+ * di densità numerico (es. @c 3000, @c 0040), funzionalmente analogo
+ * al parametro @c d di layered e grid.
  *
  * @param algorithm          Nome dell'algoritmo da usare.
  * @param instances_dir      Directory radice delle istanze sintetiche.
+ *                           Deve contenere sottocartelle per cap_type
+ *                           (es. @c int, @c unit, @c rational, @c irrational),
+ *                           ciascuna con sottocartelle per gruppo di istanze
+ *                           (es. @c n1000_d4, @c grid1000_d5, @c erdag_n1000_p0_0040).
  * @param out_dir            Directory di output per il CSV.
- * @param runs_per_instance  Numero di ripetizioni per istanza (default: 7).
- *                           La prima viene sempre scartata come warmup.
+ *                           Il file generato sarà @c <algorithm>_results.csv.
+ * @param runs_per_instance  Numero di ripetizioni per istanza (default: 4).
+ *                           La prima viene sempre scartata come warmup;
+ *                           la mediana viene calcolata sulle restanti @c (runs_per_instance - 1).
  */
 static void run_benchmark_sintetico(
     const std::string& algorithm,
     const std::string& instances_dir,
     const std::string& out_dir,
-    int runs_per_instance = 7)
+    int runs_per_instance = 4)
 {
     std::string csv_path = out_dir + "/" + algorithm + "_results.csv";
-    init_csv(csv_path, {"graph_type","cap_type","n","d","seed","m",
+    init_csv(csv_path, {"graph_type","cap_type","n","d","hi","seed","m",
                          "median_time","flow","graph_file"});
     std::cout << "Location risultati: " << csv_path << "\n";
 
-    std::regex pattern_layered(R"(layered_n(\d+)_d(\d+)_seed(\d+)\.max$)");
-    std::regex pattern_grid   (R"(grid_n(\d+)_d(\d+)_seed(\d+)\.max$)");
+    // Optional _d{d}_hi{hi} suffix before _seed — present for CS files, absent for PR/AL.
+    // Layered:  layered_n{n}_d{d}[_hi{hi}]_seed{s}.max          (CS omits inline _d, uses cs_tag)
+    //           layered_n{n}_d{d}_seed{s}.max                    (PR/AL)
+    // Grid:     grid_n{n}_rows{rows}[_d{d}_hi{hi}]_seed{s}.max
+    // ER-DAG:   erdag_n{n}_p{p_int}_{p_frac}[_d{d}_hi{hi}]_seed{s}.max
 
-    // Struttura interna per raccogliere i metadati di ogni file prima dell'esecuzione
+    // Capture groups:
+    //   layered : [1]=n  [2]=d  [3]=hi(opt)  [4]=seed
+    //   grid    : [1]=n  [2]=rows  [3]=d(opt)  [4]=hi(opt)  [5]=seed
+    //   erdag   : [1]=n  [2]=p_int  [3]=p_frac  [4]=d(opt)  [5]=hi(opt)  [6]=seed
+    std::regex pattern_layered(
+        R"(layered_n(\d+)_d(\d+)(?:_hi(\d+))?_seed(\d+)\.max$)");
+    std::regex pattern_grid(
+        R"(grid_n(\d+)_rows(\d+)(?:_d(\d+)_hi(\d+))?_seed(\d+)\.max$)");
+    std::regex pattern_erdag(
+        R"(erdag_n(\d+)_p(\d+)_(\d+)(?:_d(\d+)_hi(\d+))?_seed(\d+)\.max$)");
+
+    const std::set<std::string> known_cap_types = {"int", "unit", "rational", "irrational"};
+
     struct Entry {
         std::string graph_type, cap_type, path, filename;
-        int d, n, seed;
+        int n, d, hi, seed;   // hi = -1 when not a CS file
     };
     std::vector<Entry> entries;
 
-    // 1) Raccolta ricorsiva dei file .max conformi al pattern
-    for (auto& cap_entry : fs::directory_iterator(instances_dir)) {
-        if (!cap_entry.is_directory()) continue;
-        std::string cap_type = cap_entry.path().filename().string();
-
-        for (auto& nd_entry : fs::directory_iterator(cap_entry.path())) {
+    auto visit_cap_dir = [&](const fs::path& cap_path, const std::string& cap_type) {
+        for (auto& nd_entry : fs::directory_iterator(cap_path)) {
             if (!nd_entry.is_directory()) continue;
-            std::string nd_group   = nd_entry.path().filename().string();
-            std::string graph_type = (nd_group.rfind("grid", 0) == 0) ? "grid" : "layered";
-            const std::regex& pat  = (graph_type == "grid") ? pattern_grid : pattern_layered;
+            std::string nd_group = nd_entry.path().filename().string();
+
+            std::string graph_type;
+            if      (nd_group.rfind("grid",  0) == 0)  graph_type = "grid";
+            else if (nd_group.rfind("erdag", 0) == 0)  graph_type = "erdag";
+            else                                        graph_type = "layered";
+
+            const std::regex& pat =
+                (graph_type == "grid")  ? pattern_grid  :
+                (graph_type == "erdag") ? pattern_erdag :
+                                          pattern_layered;
 
             for (auto& fentry : fs::directory_iterator(nd_entry.path())) {
                 if (fentry.path().extension() != ".max") continue;
@@ -714,29 +744,66 @@ static void run_benchmark_sintetico(
                     std::cout << "Ignoro file non conforme: " << filename << "\n";
                     continue;
                 }
+
+                int n_val, d_val, hi_val = -1, seed_val;
+
+                if (graph_type == "layered") {
+                    // [1]=n  [2]=d  [3]=hi(opt)  [4]=seed
+                    n_val    = std::stoi(m[1]);
+                    d_val    = std::stoi(m[2]);
+                    if (m[3].matched) hi_val = std::stoi(m[3]);
+                    seed_val = std::stoi(m[4]);
+
+                } else if (graph_type == "grid") {
+                    // [1]=n  [2]=rows  [3]=d(opt)  [4]=hi(opt)  [5]=seed
+                    n_val    = std::stoi(m[1]);
+                    d_val    = m[3].matched ? std::stoi(m[3]) : -1;  // CS arc-degree, not row count
+                    if (m[4].matched) hi_val = std::stoi(m[4]);
+                    seed_val = std::stoi(m[5]);
+
+                } else {
+                    // erdag: [1]=n  [2]=p_int  [3]=p_frac  [4]=d(opt)  [5]=hi(opt)  [6]=seed
+                    n_val    = std::stoi(m[1]);
+                    d_val    = m[4].matched ? std::stoi(m[4]) : -1;
+                    if (m[5].matched) hi_val = std::stoi(m[5]);
+                    seed_val = std::stoi(m[6]);
+                }
+
                 entries.push_back({
                     graph_type, cap_type,
                     fentry.path().string(), filename,
-                    std::stoi(m[2]), std::stoi(m[1]), std::stoi(m[3])
+                    n_val, d_val, hi_val, seed_val
                 });
             }
         }
+    };
+
+    for (auto& first : fs::directory_iterator(instances_dir)) {
+        if (!first.is_directory()) continue;
+        std::string first_name = first.path().filename().string();
+
+        if (known_cap_types.count(first_name)) {
+            visit_cap_dir(first.path(), first_name);
+        } else {
+            std::cout << "Ignoro directory inattesa: " << first.path() << "\n";
+        }
     }
 
-    // 2) Ordinamento riproducibile: graph_type → cap_type → d → n → seed
     std::sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) {
         if (a.graph_type != b.graph_type) return a.graph_type < b.graph_type;
         if (a.cap_type   != b.cap_type)   return a.cap_type   < b.cap_type;
-        if (a.d != b.d) return a.d < b.d;
-        if (a.n != b.n) return a.n < b.n;
+        if (a.d  != b.d)  return a.d  < b.d;
+        if (a.hi != b.hi) return a.hi < b.hi;
+        if (a.n  != b.n)  return a.n  < b.n;
         return a.seed < b.seed;
     });
 
-    // 3) Benchmark: runs_per_instance ripetizioni, mediana delle ultime (n-1)
     for (auto& e : entries) {
         std::cout << "Processing (type=" << e.graph_type
                   << ", cap=" << e.cap_type
-                  << ", d=" << e.d << ", n=" << e.n
+                  << ", d=" << e.d
+                  << ", hi=" << e.hi
+                  << ", n=" << e.n
                   << ", seed=" << e.seed << "): " << e.path << "\n";
 
         DimacsResult pg;
@@ -746,22 +813,21 @@ static void run_benchmark_sintetico(
             continue;
         }
 
-        auto gs = scala_grafo(pg);
+        auto gs_original = scala_grafo(pg);
 
         std::vector<double> times;
         Capacity flow_value = 0;
 
         for (int r = 0; r < runs_per_instance; ++r) {
+            auto gs = gs_original;
             auto [flow, elapsed] = esegui_max_flow(algorithm, gs, pg.source, pg.sink);
             if (r == 0) flow_value = flow;
             times.push_back(elapsed);
         }
 
-        // Scarta il primo run (warmup) e calcola la mediana del resto
         std::vector<double> rest(times.begin() + 1, times.end());
         std::sort(rest.begin(), rest.end());
 
-        // Mediana: elemento centrale per dispari, media dei due centrali per pari
         double median_time = rest[rest.size() / 2];
         if (rest.size() % 2 == 0)
             median_time = (rest[rest.size()/2 - 1] + rest[rest.size()/2]) / 2.0;
@@ -769,14 +835,15 @@ static void run_benchmark_sintetico(
         std::cout << "median_time = " << std::fixed << std::setprecision(6)
                   << median_time << "s\n";
 
-        std::string flow_str = format_flow(flow_value);
-
         scrivi_riga_csv(csv_path, {
             e.graph_type, e.cap_type,
-            std::to_string(e.n), std::to_string(e.d), std::to_string(e.seed),
+            std::to_string(e.n),
+            std::to_string(e.d),
+            std::to_string(e.hi),    // -1 for PR/AL files
+            std::to_string(e.seed),
             std::to_string(pg.m_actual),
             fmt_time(median_time),
-            flow_str,
+            format_flow(flow_value),
             e.filename
         });
     }

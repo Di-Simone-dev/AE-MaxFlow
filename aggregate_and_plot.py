@@ -16,7 +16,144 @@ def load_config(path: str = "configs/config.toml") -> dict:
         return tomllib.load(f)
 
 
-# ── Aggregate and plot ─────────────────────────────────────────────────────────
+# ── Aggregation helper ─────────────────────────────────────────────────────────
+
+def aggregate(results_csv: str, output_csv: str) -> pd.DataFrame:
+    groups: dict = defaultdict(list)
+
+    with open(results_csv, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            key = (row["graph_type"], row["cap_type"], int(row["n"]), int(row["d"]), int(row["hi"]))
+            groups[key].append(float(row["median_time"]))
+
+    with open(output_csv, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "graph_type", "cap_type", "n", "d", "hi",
+            "mean_time", "std_dev", "min_time", "max_time", "count",
+        ])
+        for (graph_type, cap_type, n, d, hi) in sorted(
+            groups.keys(), key=lambda x: (x[0], x[1], x[4], x[3], x[2])
+        ):
+            times  = groups[(graph_type, cap_type, n, d, hi)]
+            mean_t = statistics.mean(times)
+            std_t  = statistics.stdev(times) if len(times) > 1 else 0.0
+            writer.writerow([
+                graph_type, cap_type, n, d, hi,
+                f"{mean_t:.17f}", f"{std_t:.17f}",
+                f"{min(times):.17f}", f"{max(times):.17f}",
+                len(times),
+            ])
+
+    print("Aggregazione completata →", output_csv)
+
+    df = pd.read_csv(output_csv)
+    for col in ("n", "d", "hi", "mean_time", "std_dev"):
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    return df.sort_values(["graph_type", "cap_type", "d", "hi"]).reset_index(drop=True)
+
+
+# ── Plot 1 — Doubling of d ─────────────────────────────────────────────────────
+#   One file per (graph_type, cap_type, hi).
+#   x-axis : d  —  single curve (hi is fixed for that file).
+
+def plot_doubling_d(df: pd.DataFrame, out_dir: str, gstyle: dict, graph_type: str, cap_type: str) -> None:
+    sub = df[(df["graph_type"] == graph_type) & (df["cap_type"] == cap_type)].copy()
+    if sub.empty:
+        return
+
+    color   = gstyle.get("color", "steelblue")
+    cap_out = os.path.join(out_dir, graph_type, cap_type)
+    os.makedirs(cap_out, exist_ok=True)
+
+    for hi in sorted(sub["hi"].unique()):
+        data = sub[sub["hi"] == hi].sort_values("d")
+        if data.empty:
+            continue
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(
+            data["d"], data["mean_time"],
+            marker="o", markersize=6, color=color,
+            linewidth=1.8,
+        )
+        ax.fill_between(
+            data["d"],
+            data["mean_time"] - data["std_dev"],
+            data["mean_time"] + data["std_dev"],
+            color=color, alpha=0.15,
+        )
+        ax.set_xscale("log", base=2)
+        ax.set_xticks(sorted(data["d"].unique()))
+        ax.set_xticklabels([str(int(v)) for v in sorted(data["d"].unique())])
+        ax.set_title(
+            f"{gstyle.get('label_prefix', graph_type.capitalize())} [{cap_type}]  —  doubling d  (hi = {int(hi)})",
+            fontsize=13,
+        )
+        ax.set_xlabel("d (degree / layers)", fontsize=12)
+        ax.set_ylabel("Mean time (seconds)", fontsize=12)
+        ax.grid(True, linestyle="--", alpha=0.4)
+        fig.tight_layout()
+
+        fname    = f"{graph_type}_{cap_type}_doubling_d_hi{int(hi)}.png"
+        out_path = os.path.join(cap_out, fname)
+        fig.savefig(out_path, dpi=150)
+        plt.close(fig)
+        print(f"  Salvato: {graph_type}/{cap_type}/{fname}")
+
+
+# ── Plot 2 — Doubling of hi ────────────────────────────────────────────────────
+#   One file per (graph_type, cap_type, d).
+#   x-axis : hi  —  single curve (d is fixed for that file).
+#   Skipped when fewer than 2 hi values exist for the combination.
+
+def plot_doubling_hi(df: pd.DataFrame, out_dir: str, gstyle: dict, graph_type: str, cap_type: str) -> None:
+    sub = df[(df["graph_type"] == graph_type) & (df["cap_type"] == cap_type)].copy()
+    if sub.empty or sub["hi"].nunique() < 2:
+        return
+
+    color   = gstyle.get("color", "steelblue")
+    cap_out = os.path.join(out_dir, graph_type, cap_type)
+    os.makedirs(cap_out, exist_ok=True)
+
+    for d in sorted(sub["d"].unique()):
+        data = sub[sub["d"] == d].sort_values("hi")
+        if data.empty:
+            continue
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(
+            data["hi"], data["mean_time"],
+            marker="o", markersize=6, color=color,
+            linewidth=1.8,
+        )
+        ax.fill_between(
+            data["hi"],
+            data["mean_time"] - data["std_dev"],
+            data["mean_time"] + data["std_dev"],
+            color=color, alpha=0.15,
+        )
+        ax.set_xscale("log", base=2)
+        ax.set_xticks(sorted(data["hi"].unique()))
+        ax.set_xticklabels([str(int(v)) for v in sorted(data["hi"].unique())])
+        ax.set_title(
+            f"{gstyle.get('label_prefix', graph_type.capitalize())} [{cap_type}]  —  doubling hi  (d = {int(d)})",
+            fontsize=13,
+        )
+        ax.set_xlabel("hi (max capacity)", fontsize=12)
+        ax.set_ylabel("Mean time (seconds)", fontsize=12)
+        ax.grid(True, linestyle="--", alpha=0.4)
+        fig.tight_layout()
+
+        fname    = f"{graph_type}_{cap_type}_doubling_hi_d{int(d)}.png"
+        out_path = os.path.join(cap_out, fname)
+        fig.savefig(out_path, dpi=150)
+        plt.close(fig)
+        print(f"  Salvato: {graph_type}/{cap_type}/{fname}")
+
+
+# ── Main aggregation + plotting entry point ────────────────────────────────────
 
 def aggregate_and_plot(
     results_csv: str,
@@ -28,58 +165,13 @@ def aggregate_and_plot(
     d_values: list[int] | None = None,
 ) -> None:
 
-    # ── Aggregation ────────────────────────────────────────────────────────────
-    groups: dict = defaultdict(list)
-
-    with open(results_csv, "r", newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            graph_type = row["graph_type"]
-            cap_type   = row["cap_type"]
-            n          = int(row["n"])
-            d          = int(row["d"])
-            time       = float(row["median_time"])
-            groups[(graph_type, cap_type, n, d)].append(time)
-
-    with open(output_csv, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            "graph_type", "cap_type", "n", "d",
-            "mean_time", "std_dev", "min_time", "max_time", "count",
-        ])
-
-        for (graph_type, cap_type, n, d) in sorted(
-            groups.keys(), key=lambda x: (x[0], x[1], x[3], x[2])
-        ):
-            times  = groups[(graph_type, cap_type, n, d)]
-            mean_t = statistics.mean(times)
-            std_t  = statistics.stdev(times) if len(times) > 1 else 0.0
-            min_t  = min(times)
-            max_t  = max(times)
-
-            writer.writerow([
-                graph_type, cap_type, n, d,
-                f"{mean_t:.17f}",
-                f"{std_t:.17f}",
-                f"{min_t:.17f}",
-                f"{max_t:.17f}",
-                len(times),
-            ])
-
-    print("Aggregazione completata →", output_csv)
-
-    # ── Plotting ───────────────────────────────────────────────────────────────
-    df = pd.read_csv(output_csv)
-    df["n"]         = pd.to_numeric(df["n"],         errors="coerce")
-    df["d"]         = pd.to_numeric(df["d"],         errors="coerce")
-    df["mean_time"] = pd.to_numeric(df["mean_time"], errors="coerce")
-    df = df.sort_values(["graph_type", "cap_type", "d", "n"]).reset_index(drop=True)
+    df = aggregate(results_csv, output_csv)
 
     all_graph_types = graph_types or sorted(df["graph_type"].unique())
     all_cap_types   = cap_types   or sorted(df["cap_type"].unique())
 
-    print(f"graph_type filtrati : {all_graph_types}")
-    print(f"cap_type filtrati   : {all_cap_types}")
+    print(f"graph_type : {all_graph_types}")
+    print(f"cap_type   : {all_cap_types}")
 
     for graph_type in all_graph_types:
         sub_type = df[df["graph_type"] == graph_type]
@@ -89,51 +181,13 @@ def aggregate_and_plot(
 
         gstyle = style.get(graph_type, {"color": "gray", "label_prefix": graph_type.capitalize()})
 
-        all_d = d_values or sorted(sub_type["d"].unique())
-        print(f"\n[{graph_type}] valori di d: {all_d}")
-
         for cap_type in all_cap_types:
-            sub_cap = sub_type[sub_type["cap_type"] == cap_type]
+            if sub_type[sub_type["cap_type"] == cap_type].empty:
+                continue
 
-            cap_out = os.path.join(out_dir, graph_type, cap_type)
-            os.makedirs(cap_out, exist_ok=True)
-
-            for d in all_d:
-                sub = sub_cap[sub_cap["d"] == d].copy()
-                if sub.empty:
-                    continue
-
-                plt.figure(figsize=(8, 5))
-                plt.plot(
-                    sub["n"], sub["mean_time"],
-                    marker='o', markersize=7, color=gstyle["color"],
-                    linewidth=1.8, label=f"d = {d}",
-                )
-
-                for _, row in sub.iterrows():
-                    plt.annotate(
-                        f"n={int(row['n'])}",
-                        xy=(row["n"], row["mean_time"]),
-                        xytext=(6, 4), textcoords="offset points",
-                        fontsize=8, color=gstyle["color"],
-                    )
-
-                plt.title(
-                    f"{gstyle['label_prefix']} [{cap_type}] — d = {d}",
-                    fontsize=14,
-                )
-                plt.xlabel("n (number of nodes)", fontsize=12)
-                plt.ylabel("Mean time (seconds)", fontsize=12)
-                plt.grid(True, linestyle='--', alpha=0.4)
-                plt.legend(fontsize=11)
-                plt.tight_layout()
-
-                fname    = f"{graph_type}_{cap_type}_d{d}.png"
-                out_path = os.path.join(cap_out, fname)
-                plt.savefig(out_path, dpi=150)
-                plt.close()
-
-                print(f"  Salvato: {graph_type}/{cap_type}/{fname}")
+            print(f"\n[{graph_type} / {cap_type}]")
+            plot_doubling_d(df, out_dir, gstyle, graph_type, cap_type)
+            plot_doubling_hi(df, out_dir, gstyle, graph_type, cap_type)
 
     print(f"\nFatto. I grafici sono nella cartella '{out_dir}/'.")
 
@@ -142,7 +196,7 @@ def aggregate_and_plot(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Aggrega i risultati CSV e genera i grafici per tutti i run definiti nel config.",
+        description="Aggrega i risultati CSV e genera i grafici capacity scaling.",
     )
     parser.add_argument(
         "--config", default="configs/config.toml",

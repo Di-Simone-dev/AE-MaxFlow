@@ -17,8 +17,8 @@
 # Cartelle delle istanze sintetiche per algoritmo
 # (push_relabel e capacity_scaling condividono gli stessi grafi)
 [instances_dir]
-push_relabel       = "graphs/pr_cs"
-capacity_scaling   = "graphs/pr_cs"
+push_relabel       = "graphs/pr"
+capacity_scaling   = "graphs/cs"
 almost_linear_time = "graphs/al"
 
 # Percorsi CSV per i benchmark su grafi reali BVZ

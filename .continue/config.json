@@ -1,0 +1,14 @@
+{
+  "models": [
+    {
+      "title": "Qwen 2.5 Coder 14B",
+      "provider": "ollama",
+      "model": "qwen2.5-coder:14b"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Qwen 2.5 Coder 14B (Inline)",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:14b"
+  }
+}
