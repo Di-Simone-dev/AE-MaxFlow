@@ -120,18 +120,21 @@ label_prefix = "ER-DAG networks"
 
 # ── Run 1 ─────────────────────────────────────────────────────────────────────
 [[runs]]
+mode        = "cs"
 results_csv = "benchmarksintetici/capacity_scaling_results.csv"
 output_csv  = "benchmarksintetici/cs_aggregated.csv"
 out_dir     = "plots/capacity_scaling_results"
 
 # ── Run 2 ─────────────────────────────────────────────────────────────────────
 [[runs]]
+mode        = "pr"
 results_csv = "benchmarksintetici/push_relabel_results.csv"
 output_csv  = "benchmarksintetici/pr_aggregated.csv"
 out_dir     = "plots/push_relabel_results"
 
 # ── Run 3 ─────────────────────────────────────────────────────────────────────
 [[runs]]
+mode        = "al"
 results_csv = "benchmarksintetici/almost_linear_time_results.csv"
 output_csv  = "benchmarksintetici/al_aggregated.csv"
 out_dir     = "plots/almost_linear_time_results"

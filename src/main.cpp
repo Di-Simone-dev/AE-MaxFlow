@@ -696,16 +696,6 @@ static void run_benchmark_sintetico(
                          "median_time","flow","graph_file"});
     std::cout << "Location risultati: " << csv_path << "\n";
 
-    // Optional _d{d}_hi{hi} suffix before _seed — present for CS files, absent for PR/AL.
-    // Layered:  layered_n{n}_d{d}[_hi{hi}]_seed{s}.max          (CS omits inline _d, uses cs_tag)
-    //           layered_n{n}_d{d}_seed{s}.max                    (PR/AL)
-    // Grid:     grid_n{n}_rows{rows}[_d{d}_hi{hi}]_seed{s}.max
-    // ER-DAG:   erdag_n{n}_p{p_int}_{p_frac}[_d{d}_hi{hi}]_seed{s}.max
-
-    // Capture groups:
-    //   layered : [1]=n  [2]=d  [3]=hi(opt)  [4]=seed
-    //   grid    : [1]=n  [2]=rows  [3]=d(opt)  [4]=hi(opt)  [5]=seed
-    //   erdag   : [1]=n  [2]=p_int  [3]=p_frac  [4]=d(opt)  [5]=hi(opt)  [6]=seed
     std::regex pattern_layered(
         R"(layered_n(\d+)_d(\d+)(?:_hi(\d+))?_seed(\d+)\.max$)");
     std::regex pattern_grid(
@@ -717,7 +707,8 @@ static void run_benchmark_sintetico(
 
     struct Entry {
         std::string graph_type, cap_type, path, filename;
-        int n, d, hi, seed;   // hi = -1 when not a CS file
+        int n, d, hi, seed;
+        std::string d_display;
     };
     std::vector<Entry> entries;
 
@@ -746,6 +737,7 @@ static void run_benchmark_sintetico(
                 }
 
                 int n_val, d_val, hi_val = -1, seed_val;
+                std::string d_display_val;
 
                 if (graph_type == "layered") {
                     // [1]=n  [2]=d  [3]=hi(opt)  [4]=seed
@@ -753,18 +745,26 @@ static void run_benchmark_sintetico(
                     d_val    = std::stoi(m[2]);
                     if (m[3].matched) hi_val = std::stoi(m[3]);
                     seed_val = std::stoi(m[4]);
+                    d_display_val = std::to_string(d_val);
 
                 } else if (graph_type == "grid") {
                     // [1]=n  [2]=rows  [3]=d(opt)  [4]=hi(opt)  [5]=seed
                     n_val    = std::stoi(m[1]);
-                    d_val    = m[3].matched ? std::stoi(m[3]) : -1;  // CS arc-degree, not row count
+                    d_val    = m[3].matched ? std::stoi(m[3]) : std::stoi(m[2]);
                     if (m[4].matched) hi_val = std::stoi(m[4]);
                     seed_val = std::stoi(m[5]);
+                    d_display_val = std::to_string(d_val);
 
                 } else {
                     // erdag: [1]=n  [2]=p_int  [3]=p_frac  [4]=d(opt)  [5]=hi(opt)  [6]=seed
                     n_val    = std::stoi(m[1]);
-                    d_val    = m[4].matched ? std::stoi(m[4]) : -1;
+                    if (m[4].matched) {
+                        d_val         = std::stoi(m[4]);
+                        d_display_val = std::to_string(d_val);
+                    } else {
+                        d_val         = -1;
+                        d_display_val = m[2].str() + "." + m[3].str();
+                    }
                     if (m[5].matched) hi_val = std::stoi(m[5]);
                     seed_val = std::stoi(m[6]);
                 }
@@ -772,7 +772,8 @@ static void run_benchmark_sintetico(
                 entries.push_back({
                     graph_type, cap_type,
                     fentry.path().string(), filename,
-                    n_val, d_val, hi_val, seed_val
+                    n_val, d_val, hi_val, seed_val,
+                    d_display_val
                 });
             }
         }
@@ -801,7 +802,7 @@ static void run_benchmark_sintetico(
     for (auto& e : entries) {
         std::cout << "Processing (type=" << e.graph_type
                   << ", cap=" << e.cap_type
-                  << ", d=" << e.d
+                  << ", d=" << e.d_display
                   << ", hi=" << e.hi
                   << ", n=" << e.n
                   << ", seed=" << e.seed << "): " << e.path << "\n";
@@ -838,8 +839,8 @@ static void run_benchmark_sintetico(
         scrivi_riga_csv(csv_path, {
             e.graph_type, e.cap_type,
             std::to_string(e.n),
-            std::to_string(e.d),
-            std::to_string(e.hi),    // -1 for PR/AL files
+            e.d_display,
+            std::to_string(e.hi),
             std::to_string(e.seed),
             std::to_string(pg.m_actual),
             fmt_time(median_time),
