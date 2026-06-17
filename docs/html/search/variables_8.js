@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['m_0',['m',['../class_min_cost_flow.html#a9108d40c1ea83ab586c33b73d7893e1f',1,'MinCostFlow']]],
-  ['m_5factual_1',['m_actual',['../struct_dimacs_result.html#a1e08e0f5b3197452c6b1068cfd594fc3',1,'DimacsResult']]]
+  ['optimal_5fcost_0',['optimal_cost',['../class_min_cost_flow.html#ae5e75e2521a2acb51d7dd49c8f2e179e',1,'MinCostFlow']]]
 ];

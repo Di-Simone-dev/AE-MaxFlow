@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['graphscaled_0',['GraphScaled',['../struct_graph_scaled.html',1,'']]]
+  ['howard_0',['Howard',['../class_howard.html',1,'']]]
 ];

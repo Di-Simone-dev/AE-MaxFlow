@@ -9,20 +9,9 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  extensions: ["tex2jax.js"],
-  jax: ["input/TeX","output/HTML-CSS"],
-});
-</script>
-<script type="text/javascript" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -57,23 +46,6 @@ $(function() {
 /* @license-end */
 </script>
 <div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('class_min_cost_flow.html',''); initResizable(); });
-/* @license-end */
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -95,6 +67,7 @@ $(document).ready(function(){initNavTree('class_min_cost_flow.html',''); initRes
 </div>
 </div>
 
+</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
@@ -110,13 +83,6 @@ $(document).ready(function(){initNavTree('class_min_cost_flow.html',''); initRes
  <a href="class_min_cost_flow.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="min__cost__flow__instance_8hpp_source.html">min_cost_flow_instance.hpp</a>&gt;</code></p>
-<div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Collaboration diagram for MinCostFlow:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow__coll__graph.png" border="0" usemap="#a_min_cost_flow_coll__map" alt="Collaboration graph"/></div>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -142,7 +108,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a3501e51cf6d57ce6b6301f46ffd28ea6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calcola il gradiente ∇Φ(f) rispetto agli archi.  <br /></td></tr>
 <tr class="separator:a3501e51cf6d57ce6b6301f46ffd28ea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc5c4c4ef899667761c0931adeef5b27"><td class="memItemLeft" align="right" valign="top">Eigen::VectorXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_min_cost_flow.html#afc5c4c4ef899667761c0931adeef5b27">calc_lengths</a> (const Eigen::VectorXd &amp;f) const</td></tr>
-<tr class="memdesc:afc5c4c4ef899667761c0931adeef5b27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calcola le lunghezze sugli archi usate dall'algoritmo di <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a>.  <br /></td></tr>
+<tr class="memdesc:afc5c4c4ef899667761c0931adeef5b27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calcola le lunghezze sugli archi usate dall'algoritmo di Howard.  <br /></td></tr>
 <tr class="separator:afc5c4c4ef899667761c0931adeef5b27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b8383dbf1bf0670ca2771b7e6c1956c"><td class="memItemLeft" align="right" valign="top">std::vector&lt; int &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_min_cost_flow.html#a9b8383dbf1bf0670ca2771b7e6c1956c">edges_between</a> (int a, int b) const</td></tr>
 <tr class="memdesc:a9b8383dbf1bf0670ca2771b7e6c1956c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restituisce gli indici degli archi tra i nodi <code>a</code> e <code>b</code>.  <br /></td></tr>
@@ -193,7 +159,7 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:ad216c8abfdb6934bda179037b915f0fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parametro della barriera: <code>1 / log₂(1000·m·U)</code>.  <br /></td></tr>
 <tr class="separator:ad216c8abfdb6934bda179037b915f0fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9608aac82d29b5f149de19f004c25149"><td class="memItemLeft" align="right" valign="top">Eigen::MatrixXd&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_min_cost_flow.html#a9608aac82d29b5f149de19f004c25149">B</a></td></tr>
-<tr class="memdesc:a9608aac82d29b5f149de19f004c25149"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrice di incidenza (m×n): <code><a class="el" href="class_min_cost_flow.html#a9608aac82d29b5f149de19f004c25149" title="Matrice di incidenza (m×n): B(e,u)=+1, B(e,v)=-1 per arco (u,v).">B(e,u)</a>=+1</code>, <code><a class="el" href="class_min_cost_flow.html#a9608aac82d29b5f149de19f004c25149" title="Matrice di incidenza (m×n): B(e,u)=+1, B(e,v)=-1 per arco (u,v).">B(e,v)</a>=-1</code> per arco <code>(u,v)</code>.  <br /></td></tr>
+<tr class="memdesc:a9608aac82d29b5f149de19f004c25149"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrice di incidenza (m×n): <code>B(e,u)=+1</code>, <code>B(e,v)=-1</code> per arco <code>(u,v)</code>.  <br /></td></tr>
 <tr class="separator:a9608aac82d29b5f149de19f004c25149"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c4a88ad85d5cb43eb71847857bcf622"><td class="memItemLeft" align="right" valign="top">std::unordered_map&lt; std::pair&lt; int, int &gt;, std::vector&lt; int &gt;, <a class="el" href="struct_min_cost_flow_1_1_pair_hash.html">PairHash</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_min_cost_flow.html#a1c4a88ad85d5cb43eb71847857bcf622">undirected_edge_to_indices</a></td></tr>
 <tr class="separator:a1c4a88ad85d5cb43eb71847857bcf622"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -204,7 +170,7 @@ Public Attributes</h2></td></tr>
 <div class="textblock"><p>Struttura dati e metodi per un'istanza di min-cost flow con barriera. </p>
 <p>Mantiene il grafo come lista di archi + lista di adiacenza, i vettori di costo e capacità come <code>Eigen::VectorXd</code>, la matrice di incidenza <code>B</code> (m×n) e la mappa bidirezionale <code>undirected_edge_to_indices</code> per lookup rapido degli archi tra due nodi.</p>
 <p>I metodi <code>phi</code>, <code>calc_gradients</code> e <code>calc_lengths</code> implementano la barriera logaritmica usata dal loop MCR di <a class="el" href="class_almost_linear_time.html">AlmostLinearTime</a>.</p>
-<dl class="section note"><dt>Note</dt><dd>I campi <code>m</code>, <code>n</code>, <code>edges</code>, <code>adj</code> e le matrici Eigen sono pubblici per consentire accesso diretto da <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a> e <code>calc_feasible_flow</code>. Modificarli direttamente è sconsigliato: usare <code>add_edge</code>/<code>add_vertex</code>. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>I campi <code>m</code>, <code>n</code>, <code>edges</code>, <code>adj</code> e le matrici Eigen sono pubblici per consentire accesso diretto da Howard e <code>calc_feasible_flow</code>. Modificarli direttamente è sconsigliato: usare <code>add_edge</code>/<code>add_vertex</code>. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab656f35c6d6ea8f40d22dfcc51399162" name="ab656f35c6d6ea8f40d22dfcc51399162"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab656f35c6d6ea8f40d22dfcc51399162">&#9670;&#160;</a></span>MinCostFlow() <span class="overload">[1/2]</span></h2>
@@ -266,8 +232,7 @@ Public Attributes</h2></td></tr>
 <dl class="section pre"><dt>Precondition</dt><dd><code>c.size() == u_lower.size() == u_upper.size() == edges.size()</code> </dd>
 <dd>
 <code>u_lower[e] &lt;= u_upper[e]</code> per ogni arco <code>e</code>.</dd></dl>
-<h4><a class="anchor" id="autotoc_md8"></a>
-Operazioni eseguite</h4>
+<h4>Operazioni eseguite</h4>
 <ol type="1">
 <li>Calcola <code>n</code> come <code>max(tutti gli indici di nodo) + 1</code>.</li>
 <li>Copia <code>edges</code>, <code>c</code>, <code>u_lower</code>, <code>u_upper</code>, <code>optimal_cost</code>.</li>
@@ -304,14 +269,7 @@ Operazioni eseguite</h4>
 </div><div class="memdoc">
 
 <p>Costruttore di default: produce un'istanza vuota. </p>
-<p>Usato internamente da <code><a class="el" href="class_min_cost_flow.html#ae90f8054b0983dbc97413f959f88e092" title="Produce una copia profonda dell&#39;istanza corrente.">clone()</a></code> per costruire l'oggetto di destinazione prima di copiare i campi. Non inizializza nessun membro. </p>
-<div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-1-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_a475df278e89004f872d68281dc416274_icgraph.png" border="0" usemap="#aclass_min_cost_flow_a475df278e89004f872d68281dc416274_icgraph" alt=""/></div>
-</div>
+<p>Usato internamente da <code>clone()</code> per costruire l'oggetto di destinazione prima di copiare i campi. Non inizializza nessun membro. </p>
 
 </div>
 </div>
@@ -375,8 +333,7 @@ Operazioni eseguite</h4>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><code>a &lt; n &amp;&amp; b &lt; n</code> </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Ogni chiamata riallocat l'intera matrice <code>B</code> — O(m·n). Aggiungere molti archi sequenzialmente è costoso; preferire la costruzione in batch tramite il costruttore principale.</dd></dl>
-<h4><a class="anchor" id="autotoc_md10"></a>
-Strutture aggiornate</h4>
+<h4>Strutture aggiornate</h4>
 <ul>
 <li><code>edges</code>, <code>adj[a]</code>, <code>adj[b]</code>: append dell'indice del nuovo arco.</li>
 <li><code>undirected_edge_to_indices[{a,b}]</code> e <code>[{b,a}]</code>: append dell'indice.</li>
@@ -396,13 +353,6 @@ Strutture aggiornate</h4>
 </dl>
 <dl class="section pre"><dt>Precondition</dt><dd><code>a &lt; n &amp;&amp; b &lt; n</code> (verificato via <code>assert</code>). </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Ogni chiamata riallocat <code>B</code> interamente — O(m·n). Usare il costruttore principale per aggiungere molti archi in un colpo solo. </dd></dl>
-<div id="dynsection-2" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-2-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_ac887b7df34b17bc59aee9faaedfa0057_icgraph.png" border="0" usemap="#aclass_min_cost_flow_ac887b7df34b17bc59aee9faaedfa0057_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -428,13 +378,6 @@ Strutture aggiornate</h4>
 <p>Estende <code>B</code> con una colonna di zeri (nodo non ancora connesso ad archi) e aggiunge una lista di adiacenza vuota. Il nuovo nodo ha indice <code>n - 1</code> dopo l'aggiornamento di <code>n</code>.</p>
 <dl class="section return"><dt>Returns</dt><dd>Indice del nuovo nodo.</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Riallocat l'intera matrice <code>B</code> — O(m·n). Accettabile se chiamato raramente (es. una volta sola in <code>calc_feasible_flow</code>). </dd></dl>
-<div id="dynsection-3" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-3-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_a7fedd2e5a5e8b0393ce32a2139d71633_icgraph.png" border="0" usemap="#aclass_min_cost_flow_a7fedd2e5a5e8b0393ce32a2139d71633_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -476,13 +419,6 @@ Strutture aggiornate</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vettore gradiente di dimensione <code>m</code>. </dd></dl>
-<div id="dynsection-4" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-4-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_a3501e51cf6d57ce6b6301f46ffd28ea6_icgraph.png" border="0" usemap="#aclass_min_cost_flow_a3501e51cf6d57ce6b6301f46ffd28ea6_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -502,10 +438,10 @@ Strutture aggiornate</h4>
       </table>
 </div><div class="memdoc">
 
-<p>Calcola le lunghezze sugli archi usate dall'algoritmo di <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a>. </p>
-<p>Calcola le lunghezze sugli archi per l'algoritmo di <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a>.</p>
+<p>Calcola le lunghezze sugli archi usate dall'algoritmo di Howard. </p>
+<p>Calcola le lunghezze sugli archi per l'algoritmo di Howard.</p>
 <p>Le lunghezze sono definite come la somma delle derivate seconde parziali della barriera rispetto a ciascun arco: </p><div class="fragment"><div class="line">lengths_e = (u_e - f_e)^(-1-α) + (f_e - l_e)^(-1-α)</div>
-</div><!-- fragment --><p> Sono sempre positive nel dominio ammissibile, garantendo che il ratio di <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a> sia ben definito.</p>
+</div><!-- fragment --><p> Sono sempre positive nel dominio ammissibile, garantendo che il ratio di Howard sia ben definito.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">f</td><td>Vettore di flusso corrente (dimensione <code>m</code>). </td></tr>
@@ -514,7 +450,7 @@ Strutture aggiornate</h4>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vettore delle lunghezze di dimensione <code>m</code> (tutti positivi).</dd></dl>
 <p>Le lunghezze sono proporzionali alla curvatura della barriera in <code>f</code>: </p><div class="fragment"><div class="line">lengths_e = (u_e - f_e)^(-1-α) + (f_e - l_e)^(-1-α)</div>
-</div><!-- fragment --><p> Sono sempre strettamente positive nel dominio ammissibile, garantendo che il ratio <code>Σ gradients / Σ lengths</code> sia ben definito in <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a>.</p>
+</div><!-- fragment --><p> Sono sempre strettamente positive nel dominio ammissibile, garantendo che il ratio <code>Σ gradients / Σ lengths</code> sia ben definito in Howard.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">f</td><td>Flusso corrente (dimensione <code>m</code>), strettamente ammissibile. </td></tr>
@@ -522,13 +458,6 @@ Strutture aggiornate</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Vettore delle lunghezze di dimensione <code>m</code> (tutti &gt; 0). </dd></dl>
-<div id="dynsection-5" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-5-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-5-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-5-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_afc5c4c4ef899667761c0931adeef5b27_icgraph.png" border="0" usemap="#aclass_min_cost_flow_afc5c4c4ef899667761c0931adeef5b27_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -552,14 +481,7 @@ Strutture aggiornate</h4>
 <p>Tutti i campi (vettori Eigen, matrici, mappe, liste) vengono copiati. Usato da <code>calc_feasible_flow</code> per non modificare l'istanza originale.</p>
 <dl class="section return"><dt>Returns</dt><dd>Copia indipendente di <code>*this</code>.</dd></dl>
 <p>Copia tutti i campi scalari, i vettori Eigen, la matrice <code>B</code>, la mappa <code>undirected_edge_to_indices</code> e la lista <code>adj</code>. La copia è completamente indipendente dall'originale — modificare un campo della copia non altera l'originale e viceversa.</p>
-<dl class="section return"><dt>Returns</dt><dd>Nuova istanza <code><a class="el" href="class_min_cost_flow.html" title="Struttura dati e metodi per un&#39;istanza di min-cost flow con barriera.">MinCostFlow</a></code> identica a <code>*this</code>. </dd></dl>
-<div id="dynsection-6" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-6-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-6-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-6-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_ae90f8054b0983dbc97413f959f88e092_icgraph.png" border="0" usemap="#aclass_min_cost_flow_ae90f8054b0983dbc97413f959f88e092_icgraph" alt=""/></div>
-</div>
+<dl class="section return"><dt>Returns</dt><dd>Nuova istanza <code>MinCostFlow</code> identica a <code>*this</code>. </dd></dl>
 
 </div>
 </div>
@@ -686,8 +608,7 @@ Strutture aggiornate</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Istanza di min-cost flow pronta per il loop interior-point.</dd></dl>
-<h4><a class="anchor" id="autotoc_md9"></a>
-Costruzione</h4>
+<h4>Costruzione</h4>
 <ul>
 <li>Aggiunge un arco virtuale <code>(t → s)</code> con costo <code>-1</code> come ultimo arco.</li>
 <li>Costi degli archi originali: tutti <code>0</code>.</li>
@@ -695,20 +616,6 @@ Costruzione</h4>
 <li><code>optimal_cost = -optimal_flow</code>: minimizzare il costo equivale a massimizzare il flusso sull'arco <code>(t → s)</code>.</li>
 </ul>
 <dl class="section note"><dt>Note</dt><dd><code>cap_sum</code> è calcolato come <code>long long</code> per evitare overflow su istanze con molti archi ad alta capacità (es. frazionari scalati). </dd></dl>
-<div id="dynsection-7" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-7-trigger" src="closed.png" alt="+"/> Here is the call graph for this function:</div>
-<div id="dynsection-7-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-7-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_af942d873beb013b0aea0e31c0a096676_cgraph.png" border="0" usemap="#aclass_min_cost_flow_af942d873beb013b0aea0e31c0a096676_cgraph" alt=""/></div>
-</div>
-<div id="dynsection-8" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-8-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-8-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-8-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_af942d873beb013b0aea0e31c0a096676_icgraph.png" border="0" usemap="#aclass_min_cost_flow_af942d873beb013b0aea0e31c0a096676_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -749,13 +656,6 @@ Costruzione</h4>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Valore scalare Φ(f). </dd></dl>
-<div id="dynsection-9" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-9-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-9-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-9-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_min_cost_flow_a53dc2c518cc85fbd45c1e9f1f8a2d07b_icgraph.png" border="0" usemap="#aclass_min_cost_flow_a53dc2c518cc85fbd45c1e9f1f8a2d07b_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -771,7 +671,7 @@ Costruzione</h4>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Lista di adiacenza: <code>adj[v]</code> contiene gli indici degli archi incidenti su <code>v</code> (sia entranti che uscenti, poiché il grafo è trattato come non orientato da <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a>). </p>
+<p>Lista di adiacenza: <code>adj[v]</code> contiene gli indici degli archi incidenti su <code>v</code> (sia entranti che uscenti, poiché il grafo è trattato come non orientato da Howard). </p>
 
 </div>
 </div>
@@ -803,7 +703,7 @@ Costruzione</h4>
       </table>
 </div><div class="memdoc">
 
-<p>Matrice di incidenza (m×n): <code><a class="el" href="class_min_cost_flow.html#a9608aac82d29b5f149de19f004c25149" title="Matrice di incidenza (m×n): B(e,u)=+1, B(e,v)=-1 per arco (u,v).">B(e,u)</a>=+1</code>, <code><a class="el" href="class_min_cost_flow.html#a9608aac82d29b5f149de19f004c25149" title="Matrice di incidenza (m×n): B(e,u)=+1, B(e,v)=-1 per arco (u,v).">B(e,v)</a>=-1</code> per arco <code>(u,v)</code>. </p>
+<p>Matrice di incidenza (m×n): <code>B(e,u)=+1</code>, <code>B(e,v)=-1</code> per arco <code>(u,v)</code>. </p>
 
 </div>
 </div>
@@ -966,18 +866,10 @@ Costruzione</h4>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/almost_linear/<a class="el" href="min__cost__flow__instance_8hpp_source.html">min_cost_flow_instance.hpp</a></li>
-<li>src/almost_linear/<a class="el" href="min__cost__flow__instance_8cpp.html">min_cost_flow_instance.cpp</a></li>
-</ul>
 </div><!-- contents -->
-</div><!-- doc-content -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="class_min_cost_flow.html">MinCostFlow</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7 </li>
-  </ul>
-</div>
+<hr class="footer"/><address class="footer"><small>
+Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7
+</small></address>
 </body>
 </html>

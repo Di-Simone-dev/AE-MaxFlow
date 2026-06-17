@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fattore_0',['fattore',['../struct_graph_scaled.html#aac327e525fa52028a14c6b8b4b22cd04',1,'GraphScaled']]]
+  ['graph_0',['graph',['../struct_dimacs_result.html#a6e45af0f55246f344e72623b6f864345',1,'DimacsResult']]]
 ];

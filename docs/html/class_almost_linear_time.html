@@ -9,20 +9,9 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  extensions: ["tex2jax.js"],
-  jax: ["input/TeX","output/HTML-CSS"],
-});
-</script>
-<script type="text/javascript" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -57,23 +46,6 @@ $(function() {
 /* @license-end */
 </script>
 <div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('class_almost_linear_time.html',''); initResizable(); });
-/* @license-end */
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -95,6 +67,7 @@ $(document).ready(function(){initNavTree('class_almost_linear_time.html',''); in
 </div>
 </div>
 
+</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -107,13 +80,6 @@ $(document).ready(function(){initNavTree('class_almost_linear_time.html',''); in
  <a href="class_almost_linear_time.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="almost__linear__time_8hpp_source.html">almost_linear_time.hpp</a>&gt;</code></p>
-<div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Collaboration diagram for AlmostLinearTime:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_almost_linear_time__coll__graph.png" border="0" usemap="#a_almost_linear_time_coll__map" alt="Collaboration graph"/></div>
-</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -132,8 +98,8 @@ Public Member Functions</h2></td></tr>
 <p>Implementa un algoritmo di tipo interior-point che:</p><ol type="1">
 <li>Esegue una ricerca binaria sul valore del flusso ottimale.</li>
 <li>Per ogni candidato, costruisce un'istanza di min-cost flow tramite <a class="el" href="class_min_cost_flow.html#af942d873beb013b0aea0e31c0a096676">MinCostFlow::from_max_flow_instance</a>.</li>
-<li>Calcola un flusso ammissibile iniziale con <a class="el" href="namespacealmost__linear.html#a67ecb51ef334dc67d6649823f6b631eb">almost_linear::calc_feasible_flow</a>.</li>
-<li>Itera aggiornamenti del flusso lungo il ciclo di minimum cycle ratio (trovato con l'algoritmo di <a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a>) fino a convergenza del potenziale Φ(f).</li>
+<li>Calcola un flusso ammissibile iniziale con almost_linear::calc_feasible_flow.</li>
+<li>Itera aggiornamenti del flusso lungo il ciclo di minimum cycle ratio (trovato con l'algoritmo di Howard) fino a convergenza del potenziale Φ(f).</li>
 </ol>
 <dl class="section note"><dt>Note</dt><dd>Il grafo è rappresentato come mappa di archi orientati con capacità intere a 64 bit per evitare overflow su istanze con capacità elevate (es. capacità frazionarie scalate prima della chiamata).</dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>L'algoritmo assume che il grafo sia connesso e che source ≠ sink. Grafi con source isolato producono flusso 0 senza eccezioni. </dd></dl>
@@ -234,13 +200,6 @@ Public Member Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Valore del massimo flusso da <code>source</code> a <code>sink</code>. </dd></dl>
 <dl class="section note"><dt>Note</dt><dd><code>mid</code> è calcolato come <code>long long</code> per evitare overflow su istanze con capacità elevate (es. frazionarie scalate).</dd></dl>
-<div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-1-trigger" src="closed.png" alt="+"/> Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_almost_linear_time_ab82e897607e33292149b5fcf2f74eb4d_cgraph.png" border="0" usemap="#aclass_almost_linear_time_ab82e897607e33292149b5fcf2f74eb4d_cgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -303,8 +262,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Coppia (valore del flusso sull'arco virtuale s→t, vettore dei flussi sugli archi originali arrotondati).</dd></dl>
-<h3><a class="anchor" id="autotoc_md1"></a>
-Dettagli implementativi</h3>
+<h3>Dettagli implementativi</h3>
 <p><b>Parametri del loop</b>:</p><ul>
 <li><code>threshold = 1e-5</code>: tolleranza sulla convergenza di <code>c·f - optimal_cost</code>.</li>
 <li><code>kappa = 0.9999</code>: fattore di damping per lo step-size <code>η</code>.</li>
@@ -335,37 +293,15 @@ Dettagli implementativi</h3>
 <p>&lt; Tolleranza di convergenza su c·f - opt</p>
 <p>&lt; Damping factor per lo step-size η</p>
 <p>&lt; Scala dell'aggiornamento del flusso</p>
-<p><a class="el" href="class_howard.html" title="Implementazione dell&#39;algoritmo di Howard per il Minimum Cycle Ratio.">Howard</a> restituisce il ciclo con ratio minimo (negativo) e il vettore indicatore del ciclo nel grafo di policy.</p>
+<p>Howard restituisce il ciclo con ratio minimo (negativo) e il vettore indicatore del ciclo nel grafo di policy.</p>
 <p>η garantisce che Φ(f + η·upscale·d) &lt; Φ(f) per la struttura self-concordante della barriera logaritmica.</p>
-<div id="dynsection-2" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-2-trigger" src="closed.png" alt="+"/> Here is the call graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_almost_linear_time_ae308c5998512e9d5095294a0b2bbe832_cgraph.png" border="0" usemap="#aclass_almost_linear_time_ae308c5998512e9d5095294a0b2bbe832_cgraph" alt=""/></div>
-</div>
-<div id="dynsection-3" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-3-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="class_almost_linear_time_ae308c5998512e9d5095294a0b2bbe832_icgraph.png" border="0" usemap="#aclass_almost_linear_time_ae308c5998512e9d5095294a0b2bbe832_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
-<li>src/almost_linear/<a class="el" href="almost__linear__time_8hpp_source.html">almost_linear_time.hpp</a></li>
-<li>src/almost_linear/<a class="el" href="almost__linear__time_8cpp.html">almost_linear_time.cpp</a></li>
-</ul>
 </div><!-- contents -->
-</div><!-- doc-content -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="class_almost_linear_time.html">AlmostLinearTime</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7 </li>
-  </ul>
-</div>
+<hr class="footer"/><address class="footer"><small>
+Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7
+</small></address>
 </body>
 </html>

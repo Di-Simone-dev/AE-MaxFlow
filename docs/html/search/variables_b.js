@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['prefix_0',['prefix',['../struct_config_1_1_dataset_info.html#ab501ed42db819b57e40a872ec2a80308',1,'Config::DatasetInfo']]]
+  ['to_0',['to',['../struct_c_s_edge.html#a6cacbced632f8d160494f0bd6ae11ba7',1,'CSEdge::to'],['../struct_residual_edge.html#a8746fd0306c01ca685aaafa5241d1dee',1,'ResidualEdge::to']]]
 ];

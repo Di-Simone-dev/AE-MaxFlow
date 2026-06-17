@@ -9,20 +9,9 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  extensions: ["tex2jax.js"],
-  jax: ["input/TeX","output/HTML-CSS"],
-});
-</script>
-<script type="text/javascript" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -57,23 +46,6 @@ $(function() {
 /* @license-end */
 </script>
 <div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('push__relabel_8hpp_source.html',''); initResizable(); });
-/* @license-end */
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -95,6 +67,11 @@ $(document).ready(function(){initNavTree('push__relabel_8hpp_source.html',''); i
 </div>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_55f042a1735b44c5124afdf6e0325b14.html">push_relabel</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="headertitle"><div class="title">push_relabel.hpp</div></div>
 </div><!--header-->
@@ -189,19 +166,15 @@ $(document).ready(function(){initNavTree('push__relabel_8hpp_source.html',''); i
 <div class="ttc" id="aclass_push_relabel_html_ac8a17af9a9af289a555000e71cfa880e"><div class="ttname"><a href="class_push_relabel.html#ac8a17af9a9af289a555000e71cfa880e">PushRelabel::DblGraph</a></div><div class="ttdeci">std::unordered_map&lt; std::pair&lt; int, int &gt;, double, PairHash &gt; DblGraph</div><div class="ttdoc">Tipo di grafo per la modalità double.</div><div class="ttdef"><b>Definition</b> push_relabel.hpp:138</div></div>
 <div class="ttc" id="aclass_push_relabel_html_afa32da9e29410817c8efb9678644272e"><div class="ttname"><a href="class_push_relabel.html#afa32da9e29410817c8efb9678644272e">PushRelabel::IntGraph</a></div><div class="ttdeci">std::unordered_map&lt; std::pair&lt; int, int &gt;, long long, PairHash &gt; IntGraph</div><div class="ttdoc">Tipo di grafo per la modalità intera.</div><div class="ttdef"><b>Definition</b> push_relabel.hpp:129</div></div>
 <div class="ttc" id="apair__hash_8hpp_html"><div class="ttname"><a href="pair__hash_8hpp.html">pair_hash.hpp</a></div><div class="ttdoc">Funzione hash per std::pair&lt;int,int&gt;, utilizzabile come funtore nei contenitori non ordinati della ST...</div></div>
-<div class="ttc" id="astruct_pair_hash_html"><div class="ttname"><a href="struct_pair_hash.html">PairHash</a></div><div class="ttdoc">Funtore hash per coppie di interi std::pair&lt;int,int&gt;.</div><div class="ttdef"><b>Definition</b> pair_hash.hpp:53</div></div>
+<div class="ttc" id="astruct_pair_hash_html"><div class="ttname"><a href="struct_pair_hash.html">PairHash</a></div><div class="ttdoc">Funtore hash per coppie di interi std::pair&lt;int,int&gt;.</div><div class="ttdef"><b>Definition</b> pair_hash.hpp:51</div></div>
 <div class="ttc" id="astruct_residual_edge_html"><div class="ttname"><a href="struct_residual_edge.html">ResidualEdge</a></div><div class="ttdoc">Arco nel grafo residuo, templatizzato sul tipo di capacità.</div><div class="ttdef"><b>Definition</b> push_relabel.hpp:70</div></div>
 <div class="ttc" id="astruct_residual_edge_html_a1d1ea640e5c076700a1316cf6326c528"><div class="ttname"><a href="struct_residual_edge.html#a1d1ea640e5c076700a1316cf6326c528">ResidualEdge::cap</a></div><div class="ttdeci">Cap cap</div><div class="ttdoc">Capacità residua corrente dell'arco.</div><div class="ttdef"><b>Definition</b> push_relabel.hpp:73</div></div>
 <div class="ttc" id="astruct_residual_edge_html_a8746fd0306c01ca685aaafa5241d1dee"><div class="ttname"><a href="struct_residual_edge.html#a8746fd0306c01ca685aaafa5241d1dee">ResidualEdge::to</a></div><div class="ttdeci">int to</div><div class="ttdoc">Nodo di destinazione (indice interno 0-based).</div><div class="ttdef"><b>Definition</b> push_relabel.hpp:71</div></div>
 <div class="ttc" id="astruct_residual_edge_html_a914921123ba60156cc91988fc1cf4ee9"><div class="ttname"><a href="struct_residual_edge.html#a914921123ba60156cc91988fc1cf4ee9">ResidualEdge::rev</a></div><div class="ttdeci">int rev</div><div class="ttdoc">Posizione dell'arco inverso in _adj[to].</div><div class="ttdef"><b>Definition</b> push_relabel.hpp:72</div></div>
 </div><!-- fragment --></div><!-- contents -->
-</div><!-- doc-content -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_55f042a1735b44c5124afdf6e0325b14.html">push_relabel</a></li><li class="navelem"><a class="el" href="push__relabel_8hpp.html">push_relabel.hpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7 </li>
-  </ul>
-</div>
+<hr class="footer"/><address class="footer"><small>
+Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7
+</small></address>
 </body>
 </html>

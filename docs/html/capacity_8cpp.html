@@ -9,20 +9,9 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  extensions: ["tex2jax.js"],
-  jax: ["input/TeX","output/HTML-CSS"],
-});
-</script>
-<script type="text/javascript" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -57,23 +46,6 @@ $(function() {
 /* @license-end */
 </script>
 <div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('capacity_8cpp.html',''); initResizable(); });
-/* @license-end */
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -95,6 +67,11 @@ $(document).ready(function(){initNavTree('capacity_8cpp.html',''); initResizable
 </div>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_b7878ad5ecbf2506f4125b9d34c97e45.html">util</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#func-members">Functions</a>  </div>
@@ -102,7 +79,7 @@ $(document).ready(function(){initNavTree('capacity_8cpp.html',''); initResizable
 </div><!--header-->
 <div class="contents">
 
-<p>Implementazione delle funzioni dichiarate in <a class="el" href="capacity_8hpp.html" title="Definizione del tipo Capacity e delle funzioni associate per il parsing, la conversione e la somma di...">capacity.hpp</a>.  
+<p>Implementazione delle funzioni dichiarate in capacity.hpp.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="capacity_8hpp_source.html">capacity.hpp</a>&quot;</code><br />
 <code>#include &lt;cctype&gt;</code><br />
@@ -110,13 +87,6 @@ $(document).ready(function(){initNavTree('capacity_8cpp.html',''); initResizable
 <code>#include &lt;stdexcept&gt;</code><br />
 <code>#include &lt;sstream&gt;</code><br />
 <code>#include &lt;numbers&gt;</code><br />
-</div><div class="textblock"><div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Include dependency graph for capacity.cpp:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="capacity_8cpp__incl.png" border="0" usemap="#asrc_2util_2capacity_8cpp" alt=""/></div>
-</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -131,15 +101,13 @@ Functions</h2></td></tr>
 <tr class="separator:a7c37d8ffc8e501339213bb1f40047424"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Implementazione delle funzioni dichiarate in <a class="el" href="capacity_8hpp.html" title="Definizione del tipo Capacity e delle funzioni associate per il parsing, la conversione e la somma di...">capacity.hpp</a>. </p>
+<div class="textblock"><p>Implementazione delle funzioni dichiarate in capacity.hpp. </p>
 <p>Contiene:</p><ul>
 <li>Una funzione di utilità statica (<code>contains_alpha</code>) per rilevare lettere in una stringa.</li>
-<li><code><a class="el" href="capacity_8cpp.html#a290d1c9795f0bcbd8a1fd1beead9a250" title="Converte una Capacity in un valore double.">to_double()</a></code>: conversione generica da <code>Capacity</code> a <code>double</code>.</li>
-<li><code><a class="el" href="capacity_8cpp.html#ad0f3fd0d6291236a67c018819464d57d" title="Somma due Capacity con promozione minima del tipo.">add_capacity()</a></code>: somma robusta con promozione minima del tipo.</li>
-<li><code><a class="el" href="capacity_8cpp.html#a7c37d8ffc8e501339213bb1f40047424" title="Analizza una stringa nel formato DIMACS e la converte in Capacity.">parse_capacity()</a></code>: parser completo di stringhe DIMACS in <code>Capacity</code>.</li>
+<li><code>to_double()</code>: conversione generica da <code>Capacity</code> a <code>double</code>.</li>
+<li><code>add_capacity()</code>: somma robusta con promozione minima del tipo.</li>
+<li><code>parse_capacity()</code>: parser completo di stringhe DIMACS in <code>Capacity</code>. </li>
 </ul>
-<dl class="section author"><dt>Author</dt><dd>[inserire autore] </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>[inserire data] </dd></dl>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a id="ad0f3fd0d6291236a67c018819464d57d" name="ad0f3fd0d6291236a67c018819464d57d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad0f3fd0d6291236a67c018819464d57d">&#9670;&#160;</a></span>add_capacity()</h2>
@@ -172,9 +140,9 @@ Functions</h2></td></tr>
 <p>Utilizza un visitor binario (<code>std::visit</code> con due argomenti) per scegliere a compile-time la strategia di somma ottimale:</p>
 <ul>
 <li><code>int + int</code> → risultato <code>int</code> (nessuna perdita di precisione)</li>
-<li><code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a> + <a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a></code> → risultato <code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a></code> (aritmetica esatta)</li>
-<li><code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a> + int</code> → risultato <code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a></code> (l'intero viene promosso a <code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction(n,1)</a></code>)</li>
-<li><code>int + <a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a></code> → risultato <code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a></code> (simmetrico al caso precedente)</li>
+<li><code>Fraction + Fraction</code> → risultato <code>Fraction</code> (aritmetica esatta)</li>
+<li><code>Fraction + int</code> → risultato <code>Fraction</code> (l'intero viene promosso a <code>Fraction(n,1)</code>)</li>
+<li><code>int + Fraction</code> → risultato <code>Fraction</code> (simmetrico al caso precedente)</li>
 <li>qualsiasi altra coppia → risultato <code>double</code> (fallback tramite <code>to_double</code>)</li>
 </ul>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -185,20 +153,6 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>La somma come <code>Capacity</code> nel tipo più preciso compatibile. </dd></dl>
-<div id="dynsection-1" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-1-trigger" src="closed.png" alt="+"/> Here is the call graph for this function:</div>
-<div id="dynsection-1-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-1-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="capacity_8cpp_ad0f3fd0d6291236a67c018819464d57d_cgraph.png" border="0" usemap="#acapacity_8cpp_ad0f3fd0d6291236a67c018819464d57d_cgraph" alt=""/></div>
-</div>
-<div id="dynsection-2" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-2-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-2-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-2-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="capacity_8cpp_ad0f3fd0d6291236a67c018819464d57d_icgraph.png" border="0" usemap="#acapacity_8cpp_ad0f3fd0d6291236a67c018819464d57d_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -220,20 +174,17 @@ Functions</h2></td></tr>
 
 <p>Analizza una stringa nel formato DIMACS e la converte in <code>Capacity</code>. </p>
 <p>Effettua il parsing di una stringa nel formato DIMACS e restituisce la <code>Capacity</code> corrispondente.</p>
-<h3><a class="anchor" id="autotoc_md29"></a>
-Pipeline di parsing</h3>
+<h3>Pipeline di parsing</h3>
 <ol type="1">
 <li><b>Pre-processing</b>: rimuove tutti gli spazi bianchi dalla stringa.</li>
-<li><b>Frazione esatta</b> (<code>"7/4"</code>): se è presente <code>/</code> e non ci sono lettere, viene costruita una <code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction(num, den)</a></code>.</li>
+<li><b>Frazione esatta</b> (<code>"7/4"</code>): se è presente <code>/</code> e non ci sono lettere, viene costruita una <code>Fraction(num, den)</code>.</li>
 <li><b>Espressione irrazionale</b> (stringa con lettere): le costanti <code>pi</code> ed <code>e</code> vengono sostituite con i loro valori numerici, poi si prova a valutare una delle funzioni matematiche supportate. Se nessuna corrisponde, si tenta una conversione <code>double</code> diretta.</li>
 <li><b>Intero</b>: <code>std::stoi</code> con verifica che tutta la stringa sia consumata.</li>
 <li><b>Floating point</b>: <code>std::stod</code> come fallback finale.</li>
 </ol>
-<h3><a class="anchor" id="autotoc_md30"></a>
-Funzioni matematiche supportate</h3>
+<h3>Funzioni matematiche supportate</h3>
 <p><code>sqrt(x)</code>, <code>log(x)</code> / <code>ln(x)</code>, <code>log10(x)</code>, <code>log2(x)</code>, <code>sin(x)</code>, <code>cos(x)</code>, <code>tan(x)</code>, <code>exp(x)</code>, <code>abs(x)</code>.</p>
-<h3><a class="anchor" id="autotoc_md31"></a>
-Lambda interna: &lt;tt&gt;eval_simple&lt;/tt&gt;</h3>
+<h3>Lambda interna: <code>eval_simple</code></h3>
 <p>Valuta espressioni della forma <code>"a"</code> o <code>"a/b"</code> (con <code>a</code>, <code>b</code> convertibili in <code>double</code>). Usata per valutare l'argomento delle funzioni matematiche.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
@@ -258,7 +209,7 @@ Lambda interna: &lt;tt&gt;eval_simple&lt;/tt&gt;</h3>
 <div class="line"><span class="keyword">auto</span> c3 = <a class="code hl_function" href="capacity_8cpp.html#a7c37d8ffc8e501339213bb1f40047424">parse_capacity</a>(<span class="stringliteral">&quot;3.14&quot;</span>);     <span class="comment">// double(3.14)</span></div>
 <div class="line"><span class="keyword">auto</span> c4 = <a class="code hl_function" href="capacity_8cpp.html#a7c37d8ffc8e501339213bb1f40047424">parse_capacity</a>(<span class="stringliteral">&quot;sqrt(2)&quot;</span>);  <span class="comment">// double(1.41421...)</span></div>
 <div class="line"><span class="keyword">auto</span> c5 = <a class="code hl_function" href="capacity_8cpp.html#a7c37d8ffc8e501339213bb1f40047424">parse_capacity</a>(<span class="stringliteral">&quot;pi&quot;</span>);       <span class="comment">// double(3.14159...)</span></div>
-<div class="ttc" id="acapacity_8cpp_html_a7c37d8ffc8e501339213bb1f40047424"><div class="ttname"><a href="capacity_8cpp.html#a7c37d8ffc8e501339213bb1f40047424">parse_capacity</a></div><div class="ttdeci">Capacity parse_capacity(const std::string &amp;s_raw)</div><div class="ttdoc">Analizza una stringa nel formato DIMACS e la converte in Capacity.</div><div class="ttdef"><b>Definition</b> capacity.cpp:177</div></div>
+<div class="ttc" id="acapacity_8cpp_html_a7c37d8ffc8e501339213bb1f40047424"><div class="ttname"><a href="capacity_8cpp.html#a7c37d8ffc8e501339213bb1f40047424">parse_capacity</a></div><div class="ttdeci">Capacity parse_capacity(const std::string &amp;s_raw)</div><div class="ttdoc">Analizza una stringa nel formato DIMACS e la converte in Capacity.</div><div class="ttdef"><b>Definition</b> capacity.cpp:175</div></div>
 </div><!-- fragment --> </dd></dl>
 <p>Lambda di supporto: valuta una sottoespressione numerica semplice.</p>
 <p>Accetta stringhe della forma <code>"a"</code> oppure <code>"a/b"</code> dove <code>a</code> e <code>b</code> sono convertibili in <code>double</code>. Usata per estrarre l'argomento delle funzioni matematiche dopo la sostituzione delle costanti simboliche.</p>
@@ -300,13 +251,6 @@ Lambda interna: &lt;tt&gt;eval_simple&lt;/tt&gt;</h3>
 <code>exp(x)</code> — esponenziale naturale (e^x)</dd>
 <dd>
 <code>abs(x)</code> — valore assoluto</dd></dl>
-<div id="dynsection-3" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-3-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-3-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-3-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="capacity_8cpp_a7c37d8ffc8e501339213bb1f40047424_icgraph.png" border="0" usemap="#acapacity_8cpp_a7c37d8ffc8e501339213bb1f40047424_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
@@ -329,7 +273,7 @@ Lambda interna: &lt;tt&gt;eval_simple&lt;/tt&gt;</h3>
 <p>Converte una <code>Capacity</code> in un valore <code>double</code>. </p>
 <p>Utilizza <code>std::visit</code> per selezionare a compile-time la conversione appropriata in base al tipo attivo nel variant:</p><ul>
 <li><code>int</code> → <code>static_cast&lt;double&gt;</code></li>
-<li><code><a class="el" href="class_fraction.html" title="Numero razionale esatto in forma ridotta ai minimi termini.">Fraction</a></code> → <code><a class="el" href="class_fraction.html#af79c15ed026dc437a40bd613a19c7a61" title="Converte la frazione in un valore double.">Fraction::to_double()</a></code></li>
+<li><code>Fraction</code> → <code>Fraction::to_double()</code></li>
 <li><code>double</code> → restituzione diretta</li>
 </ul>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -340,24 +284,13 @@ Lambda interna: &lt;tt&gt;eval_simple&lt;/tt&gt;</h3>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Il valore numerico come <code>double</code>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Un <code>static_assert</code> a compile-time garantisce che nessun tipo non gestito possa raggiungere il ramo <code>else</code>. </dd></dl>
-<div id="dynsection-4" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-4-trigger" src="closed.png" alt="+"/> Here is the caller graph for this function:</div>
-<div id="dynsection-4-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-4-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="capacity_8cpp_a290d1c9795f0bcbd8a1fd1beead9a250_icgraph.png" border="0" usemap="#acapacity_8cpp_a290d1c9795f0bcbd8a1fd1beead9a250_icgraph" alt=""/></div>
-</div>
 
 </div>
 </div>
 </div><!-- contents -->
-</div><!-- doc-content -->
 <!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_b7878ad5ecbf2506f4125b9d34c97e45.html">util</a></li><li class="navelem"><a class="el" href="capacity_8cpp.html">capacity.cpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7 </li>
-  </ul>
-</div>
+<hr class="footer"/><address class="footer"><small>
+Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7
+</small></address>
 </body>
 </html>

@@ -31,8 +31,6 @@
 #include <cassert>
 #include <numeric>
 
-namespace almost_linear {
-
 /**
  * @brief Calcola un flusso ammissibile iniziale per il loop interior-point.
  *
@@ -110,5 +108,3 @@ calc_feasible_flow(const MinCostFlow& I_or)
 
     return {std::move(I), std::move(init_flow)};
 }
-
-} // namespace almost_linear

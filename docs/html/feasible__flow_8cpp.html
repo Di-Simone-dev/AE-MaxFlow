@@ -9,20 +9,9 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
-<link href="navtree.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="resize.js"></script>
-<script type="text/javascript" src="navtreedata.js"></script>
-<script type="text/javascript" src="navtree.js"></script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  extensions: ["tex2jax.js"],
-  jax: ["input/TeX","output/HTML-CSS"],
-});
-</script>
-<script type="text/javascript" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/MathJax.js"></script>
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -57,23 +46,6 @@ $(function() {
 /* @license-end */
 </script>
 <div id="main-nav"></div>
-</div><!-- top -->
-<div id="side-nav" class="ui-resizable side-nav-resizable">
-  <div id="nav-tree">
-    <div id="nav-tree-contents">
-      <div id="nav-sync" class="sync"></div>
-    </div>
-  </div>
-  <div id="splitbar" style="-moz-user-select:none;" 
-       class="ui-resizable-handle">
-  </div>
-</div>
-<script type="text/javascript">
-/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('feasible__flow_8cpp.html',''); initResizable(); });
-/* @license-end */
-</script>
-<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -95,60 +67,89 @@ $(document).ready(function(){initNavTree('feasible__flow_8cpp.html',''); initRes
 </div>
 </div>
 
+<div id="nav-path" class="navpath">
+  <ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a15c8408844508f1dbff1cb767fea760.html">almost_linear</a></li>  </ul>
+</div>
+</div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#namespaces">Namespaces</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">feasible_flow.cpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Implementazione di <code><a class="el" href="namespacealmost__linear.html#a67ecb51ef334dc67d6649823f6b631eb" title="Calcola un flusso ammissibile iniziale per il loop interior-point.">almost_linear::calc_feasible_flow</a></code>.  
+<p>Implementazione di <code>almost_linear::calc_feasible_flow</code>.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="feasible__flow_8hpp_source.html">feasible_flow.hpp</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="min__cost__flow__instance_8hpp_source.html">min_cost_flow_instance.hpp</a>&quot;</code><br />
 <code>#include &lt;Eigen/Dense&gt;</code><br />
 <code>#include &lt;cassert&gt;</code><br />
 <code>#include &lt;numeric&gt;</code><br />
-</div><div class="textblock"><div id="dynsection-0" onclick="return toggleVisibility(this)" class="dynheader closed" style="cursor:pointer;">
-  <img id="dynsection-0-trigger" src="closed.png" alt="+"/> Include dependency graph for feasible_flow.cpp:</div>
-<div id="dynsection-0-summary" class="dynsummary" style="display:block;">
-</div>
-<div id="dynsection-0-content" class="dyncontent" style="display:none;">
-<div class="center"><img src="feasible__flow_8cpp__incl.png" border="0" usemap="#asrc_2almost__linear_2feasible__flow_8cpp" alt=""/></div>
-</div>
 </div><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
-Namespaces</h2></td></tr>
-<tr class="memitem:namespacealmost__linear"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacealmost__linear.html">almost_linear</a></td></tr>
-<tr class="memdesc:namespacealmost__linear"><td class="mdescLeft">&#160;</td><td class="mdescRight">Namespace del solver di max-flow con complessità quasi-lineare. <br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a67ecb51ef334dc67d6649823f6b631eb"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="class_min_cost_flow.html">MinCostFlow</a>, Eigen::VectorXd &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacealmost__linear.html#a67ecb51ef334dc67d6649823f6b631eb">almost_linear::calc_feasible_flow</a> (const <a class="el" href="class_min_cost_flow.html">MinCostFlow</a> &amp;I_or)</td></tr>
-<tr class="memdesc:a67ecb51ef334dc67d6649823f6b631eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calcola un flusso ammissibile iniziale per il loop interior-point.  <br /></td></tr>
-<tr class="separator:a67ecb51ef334dc67d6649823f6b631eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa661bc661008d9540fbf9c5418dd7b78"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="class_min_cost_flow.html">MinCostFlow</a>, Eigen::VectorXd &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="feasible__flow_8cpp.html#aa661bc661008d9540fbf9c5418dd7b78">calc_feasible_flow</a> (const <a class="el" href="class_min_cost_flow.html">MinCostFlow</a> &amp;I_or)</td></tr>
+<tr class="memdesc:aa661bc661008d9540fbf9c5418dd7b78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calcola un flusso ammissibile iniziale per il loop interior-point.  <br /></td></tr>
+<tr class="separator:aa661bc661008d9540fbf9c5418dd7b78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Implementazione di <code><a class="el" href="namespacealmost__linear.html#a67ecb51ef334dc67d6649823f6b631eb" title="Calcola un flusso ammissibile iniziale per il loop interior-point.">almost_linear::calc_feasible_flow</a></code>. </p>
-<h3><a class="anchor" id="autotoc_md2"></a>
-Strategia</h3>
+<div class="textblock"><p>Implementazione di <code>almost_linear::calc_feasible_flow</code>. </p>
+<h3>Strategia</h3>
 <p>L'algoritmo interior-point richiede un punto di partenza strettamente interno al dominio ammissibile di Φ(f), ovvero un flusso <code>f</code> tale che: </p><div class="fragment"><div class="line">u_lower &lt; f &lt; u_upper       (capacità)</div>
 <div class="line">B^T f = 0                   (conservazione del flusso)</div>
 </div><!-- fragment --><p>Il punto centrale <code>f₀ = (u_lower + u_upper) / 2</code> soddisfa le disuguaglianze di capacità per costruzione, ma in generale <b>non</b> bilancia il flusso sui nodi (<code>B^T f₀ ≠ 0</code>).</p>
 <p>Per correggere gli squilibri si aggiunge un nodo fittizio <code>v*</code> collegato a ogni nodo sbilanciato tramite archi ausiliari ad alto costo, in modo che la conservazione del flusso sia soddisfatta sull'istanza estesa. Il costo elevato <code>c = 4·m·U²</code> garantisce che questi archi ausiliari non facciano parte della soluzione ottima dell'istanza originale.</p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="feasible__flow_8hpp.html" title="Dichiarazione di calc_feasible_flow, funzione che produce un flusso ammissibile iniziale per il loop ...">feasible_flow.hpp</a> </dd>
+<dl class="section see"><dt>See also</dt><dd>feasible_flow.hpp </dd>
 <dd>
-<a class="el" href="class_almost_linear_time.html#ae308c5998512e9d5095294a0b2bbe832" title="Risolve il max-flow con una stima fissata del valore ottimale.">AlmostLinearTime::max_flow_with_guess</a> </dd></dl>
-</div></div><!-- contents -->
-</div><!-- doc-content -->
-<!-- start footer part -->
-<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
-  <ul>
-    <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_a15c8408844508f1dbff1cb767fea760.html">almost_linear</a></li><li class="navelem"><a class="el" href="feasible__flow_8cpp.html">feasible_flow.cpp</a></li>
-    <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7 </li>
-  </ul>
+AlmostLinearTime::max_flow_with_guess </dd></dl>
+</div><h2 class="groupheader">Function Documentation</h2>
+<a id="aa661bc661008d9540fbf9c5418dd7b78" name="aa661bc661008d9540fbf9c5418dd7b78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa661bc661008d9540fbf9c5418dd7b78">&#9670;&#160;</a></span>calc_feasible_flow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::pair&lt; <a class="el" href="class_min_cost_flow.html">MinCostFlow</a>, Eigen::VectorXd &gt; calc_feasible_flow </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="class_min_cost_flow.html">MinCostFlow</a> &amp;&#160;</td>
+          <td class="paramname"><em>I_or</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calcola un flusso ammissibile iniziale per il loop interior-point. </p>
+<p>Calcola un flusso ammissibile iniziale strettamente interno al dominio ammissibile di Φ(f).</p>
+<h4>Passi dell'algoritmo</h4>
+<ol type="1">
+<li><b>Clone</b>: copia l'istanza originale per non modificarla.</li>
+<li><b>Nodo fittizio</b>: aggiunge <code>v*</code> all'istanza clonata.</li>
+<li><b>Flusso centrale</b>: inizializza <code>init_flow = (u_lower + u_upper) / 2</code>, strettamente interno al dominio di capacità.</li>
+<li><b>Squilibri nodali</b>: calcola <code>d̂ = B^T init_flow</code> — la divergenza del flusso centrale su ciascun nodo.</li>
+<li><b>Penalità di bilanciamento</b>: <code>c = 4·m·U²</code> è sufficientemente grande da rendere gli archi ausiliari non attraenti per l'ottimizzatore.</li>
+<li><b>Archi ausiliari</b>: per ogni nodo <code>v</code> con <code>d̂[v] ≠ 0</code>, aggiunge un arco tra <code>v*</code> e <code>v</code> (o viceversa) con capacità <code>[0, 2·|d̂[v]|]</code> e flusso iniziale <code>|d̂[v]|</code>, annullando lo squilibrio.</li>
+<li><b>Verifica</b>: controlla che <code>init_flow.size() == I.m</code> dopo le aggiunte.</li>
+</ol>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">I_or</td><td>Istanza di min-cost flow da cui partire. Non viene modificata. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Coppia <code>(I_modified, init_flow)</code> pronta per il loop MCR.</dd></dl>
+<dl class="section pre"><dt>Precondition</dt><dd><code>I_or.u_lower[e] &lt;= I_or.u_upper[e]</code> per ogni arco <code>e</code>. </dd></dl>
+<dl class="section post"><dt>Postcondition</dt><dd><code>init_flow.size() == I_modified.m</code> </dd>
+<dd>
+<code>init_flow[e]</code> è strettamente compreso tra <code>u_lower[e]</code> e <code>u_upper[e]</code> per tutti gli archi originali (garantito dal punto centrale). </dd></dl>
+
 </div>
+</div>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.7
+</small></address>
 </body>
 </html>

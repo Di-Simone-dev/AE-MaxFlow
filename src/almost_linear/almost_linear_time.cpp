@@ -161,7 +161,7 @@ std::pair<long long, Eigen::VectorXd> AlmostLinearTime::max_flow_with_guess(
     /// `calc_feasible_flow` aggiunge archi ausiliari da/verso un nodo fittizio
     /// v* per bilanciare gli squilibri di flusso, producendo un punto interno
     /// al dominio ammissibile di Φ(f).
-    auto [I2, cur_flow] = almost_linear::calc_feasible_flow(I);
+    auto [I2, cur_flow] = calc_feasible_flow(I);
     I = std::move(I2);
 
     // ── Parametri dell'algoritmo ─────────────────────────────────────────

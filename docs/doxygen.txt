@@ -1,4 +1,4 @@
 
-doxygen -g          # crea il Doxyfile
-doxygen Doxyfile    # genera la documentazione
+doxygen -g          # crea il Doxyfile (se NON c'è già)
+doxygen Doxyfile    # genera la documentazione (da usare per aggiornare senza cambiare le configurazioni)
 start html/index.html
