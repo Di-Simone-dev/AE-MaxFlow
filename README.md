@@ -1,61 +1,27 @@
-# MaxFlow Project — Build & Execution Guide
+# MaxFlow Project
 
-Questo repository contiene gli script Python per la generazione dei grafi e il codice C++ per la compilazione ed esecuzione dell'algoritmo di Max Flow.
+Implementazione dell'algoritmo di Max Flow in C++, con generazione dei grafi di test tramite script Python.
 
-## 1. Creazione dell'ambiente virtuale Python
+## Struttura del progetto
 
-```powershell
-python -m venv venv
-```
+- `graphgenerator.py` — script Python per la generazione dei grafi usati come input dell'algoritmo.
+- `requirements.txt` — dipendenze Python necessarie per eseguire lo script di generazione.
+- `CMakeLists.txt` — configurazione CMake per la compilazione del codice C++.
+- Codice sorgente C++ dell'algoritmo di Max Flow.
 
-## 2. Attivazione dell'ambiente virtuale
+## Requisiti
 
-```powershell
-.\venv\Scripts\activate
-```
+- Python 3.x con `venv`
+- CMake
+- Un compilatore C++ (MinGW su Windows, GCC/Clang su Linux)
 
-## 3. Installazione dei pacchetti Python
+## Guide di build ed esecuzione
 
-Assicurati di avere `requirements.txt` nella root del progetto.
+Le istruzioni dettagliate per la generazione dei grafi, la compilazione e l'esecuzione dell'algoritmo sono disponibili nelle guide dedicate per ciascun sistema operativo:
 
-```powershell
-pip install -r requirements.txt
-```
+- [Guida per Windows](./BUILD_WINDOWS.md)
+- [Guida per Linux](./BUILD_LINUX.md)
 
-## 4. Generazione dei grafi
+## Esecuzione rapida
 
-Esegui lo script Python dedicato:
-
-```powershell
-python .\graphgenerator.py
-```
-
-## 5. Configurazione del progetto C++ con CMake (MinGW)
-
-Genera i file di build:
-
-```powershell
-cmake -S . -B build -G "MinGW Makefiles"
-```
-
-## 6. Compilazione
-
-```powershell
-cmake --build ./build
-```
-
-L'eseguibile risultante sarà disponibile nella directory principale del progetto.
-
-## 7. Esecuzione dell'algoritmo MaxFlow
-
-Esempio di esecuzione con parametri:
-
-```powershell
-.\maxflow.exe -pr -SINTH
-```
-
-## 8. Pulizia della build (opzionale)
-
-```powershell
-Remove-Item -Recurse -Force .\build
-```
+In sintesi, il flusso di lavoro tipico prevede: creazione e attivazione di un ambiente virtuale Python, installazione delle dipendenze, generazione dei grafi, configurazione e compilazione del progetto C++ con CMake, ed esecuzione dell'eseguibile risultante con i parametri desiderati (es. `-pr -SINTH`).
