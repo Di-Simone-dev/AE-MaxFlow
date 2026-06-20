@@ -1,0 +1,8 @@
+c GRID network n=5 d=5 seed=5001 cap=int
+p max 5 4
+n 1 s
+n 5 t
+a 1 2 710
+a 2 3 428
+a 3 4 770
+a 4 5 559

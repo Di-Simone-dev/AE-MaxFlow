@@ -565,7 +565,7 @@ esegui_max_flow(const std::string& algorithm,
         }
     } catch (const std::out_of_range&) {
         // Source isolato (nessun arco uscente): flusso massimo = 0 per definizione
-        std::cout << "Source isolato → flusso = 0\n";
+        std::cout << "Source isolato => flusso = 0\n";
         flow = 0;
     }
 
@@ -634,7 +634,7 @@ static void run_benchmark_reale(
             correctness = (sol == static_cast<long long>(std::round(flow_d)))
                           ? "RISULTATO CORRETTO" : "NON CORRETTO";
             std::cout << "Atteso: " << sol << "  Ottenuto: " << flow_str
-                      << "  → " << correctness << "\n";
+                      << " " << correctness << "\n";
         } else {
             std::cout << "File soluzione non trovato: " << sol_path << "\n";
         }
@@ -699,7 +699,7 @@ static void run_benchmark_sintetico(
     std::regex pattern_layered(
         R"(layered_n(\d+)_d(\d+)(?:_hi(\d+))?_seed(\d+)\.max$)");
     std::regex pattern_grid(
-        R"(grid_n(\d+)_rows(\d+)(?:_d(\d+)_hi(\d+))?_seed(\d+)\.max$)");
+        R"(grid_n(\d+)_rows(\d+)(?:_n(\d+)_hi(\d+))?_seed(\d+)\.max$)");
     std::regex pattern_erdag(
         R"(erdag_n(\d+)_p(\d+)_(\d+)(?:_d(\d+)_hi(\d+))?_seed(\d+)\.max$)");
 
@@ -748,13 +748,12 @@ static void run_benchmark_sintetico(
                     d_display_val = std::to_string(d_val);
 
                 } else if (graph_type == "grid") {
-                    // [1]=n  [2]=rows  [3]=d(opt)  [4]=hi(opt)  [5]=seed
+                    // [1]=n  [2]=rows  [3]=n_ridondante(opt, nuovo formato)  [4]=hi(opt)  [5]=seed
                     n_val    = std::stoi(m[1]);
                     d_val    = m[3].matched ? std::stoi(m[3]) : std::stoi(m[2]);
                     if (m[4].matched) hi_val = std::stoi(m[4]);
                     seed_val = std::stoi(m[5]);
                     d_display_val = std::to_string(d_val);
-
                 } else {
                     // erdag: [1]=n  [2]=p_int  [3]=p_frac  [4]=d(opt)  [5]=hi(opt)  [6]=seed
                     n_val    = std::stoi(m[1]);

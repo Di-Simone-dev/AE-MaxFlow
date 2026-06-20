@@ -1,0 +1,11 @@
+c ER-DAG network n=20 p=0.04 seed=40000 cap=int
+p max 20 7
+n 1 s
+n 20 t
+a 1 5 596
+a 1 6 923
+a 3 20 304
+a 8 10 456
+a 8 16 245
+a 10 12 855
+a 11 14 550

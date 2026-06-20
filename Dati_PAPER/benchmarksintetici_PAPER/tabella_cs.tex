@@ -1,0 +1,263 @@
+\begin{longtable}{l l r r r r r}
+\caption{Risultati aggregati -- Capacity Scaling (CS), doubling su $d$ (erdag/layered) o $n$ (grid), $hi$ fisso.}
+\label{tab:cs_doubling_nd} \\
+\toprule
+Tipo grafo & Capacit\`a & $n$ & $d$ & $hi$ & Tempo medio (s) & Rapporto \\
+\midrule
+\endfirsthead
+\toprule
+Tipo grafo & Capacit\`a & $n$ & $d$ & $hi$ & Tempo medio (s) & Rapporto \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+ERDAG & int & 1000 & 4 & 255 & 0.000252 & --- \\
+ERDAG & int & 1000 & 8 & 255 & 0.000537 & 2.129 \\
+ERDAG & int & 1000 & 16 & 255 & 0.001101 & 2.051 \\
+ERDAG & int & 1000 & 32 & 255 & 0.004380 & 3.977 \\
+ERDAG & int & 1000 & 64 & 255 & 0.019376 & 4.424 \\
+\addlinespace
+ERDAG & int & 1000 & 4 & 511 & 0.000253 & --- \\
+ERDAG & int & 1000 & 8 & 511 & 0.000593 & 2.342 \\
+ERDAG & int & 1000 & 16 & 511 & 0.001048 & 1.766 \\
+ERDAG & int & 1000 & 32 & 511 & 0.003881 & 3.704 \\
+ERDAG & int & 1000 & 64 & 511 & 0.014132 & 3.642 \\
+\addlinespace
+ERDAG & int & 1000 & 4 & 1023 & 0.000296 & --- \\
+ERDAG & int & 1000 & 8 & 1023 & 0.000510 & 1.723 \\
+ERDAG & int & 1000 & 16 & 1023 & 0.001246 & 2.442 \\
+ERDAG & int & 1000 & 32 & 1023 & 0.003745 & 3.006 \\
+ERDAG & int & 1000 & 64 & 1023 & 0.015152 & 4.045 \\
+\addlinespace
+ERDAG & int & 1000 & 4 & 2047 & 0.000239 & --- \\
+ERDAG & int & 1000 & 8 & 2047 & 0.000483 & 2.023 \\
+ERDAG & int & 1000 & 16 & 2047 & 0.001306 & 2.703 \\
+ERDAG & int & 1000 & 32 & 2047 & 0.005574 & 4.267 \\
+ERDAG & int & 1000 & 64 & 2047 & 0.014753 & 2.647 \\
+\addlinespace
+ERDAG & int & 1000 & 4 & 4095 & 0.000299 & --- \\
+ERDAG & int & 1000 & 8 & 4095 & 0.000459 & 1.536 \\
+ERDAG & int & 1000 & 16 & 4095 & 0.001300 & 2.832 \\
+ERDAG & int & 1000 & 32 & 4095 & 0.003944 & 3.034 \\
+ERDAG & int & 1000 & 64 & 4095 & 0.020744 & 5.259 \\
+\addlinespace
+ERDAG & rational & 1000 & 4 & 1023 & 0.000239 & --- \\
+ERDAG & rational & 1000 & 8 & 1023 & 0.000435 & 1.823 \\
+ERDAG & rational & 1000 & 16 & 1023 & 0.001272 & 2.925 \\
+ERDAG & rational & 1000 & 32 & 1023 & 0.004639 & 3.645 \\
+ERDAG & rational & 1000 & 64 & 1023 & 0.017812 & 3.840 \\
+\addlinespace
+ERDAG & irrational & 1000 & 4 & 1023 & 0.000219 & --- \\
+ERDAG & irrational & 1000 & 8 & 1023 & 0.000508 & 2.314 \\
+ERDAG & irrational & 1000 & 16 & 1023 & 0.002299 & 4.529 \\
+ERDAG & irrational & 1000 & 32 & 1023 & 0.004506 & 1.960 \\
+ERDAG & irrational & 1000 & 64 & 1023 & 0.008059 & 1.788 \\
+\addlinespace
+ERDAG & unit & 1000 & 4 & 1023 & 0.000184 & --- \\
+ERDAG & unit & 1000 & 8 & 1023 & 0.000366 & 1.983 \\
+ERDAG & unit & 1000 & 16 & 1023 & 0.000661 & 1.808 \\
+ERDAG & unit & 1000 & 32 & 1023 & 0.001818 & 2.751 \\
+ERDAG & unit & 1000 & 64 & 1023 & 0.006757 & 3.716 \\
+\addlinespace
+Layered & int & 1000 & 4 & 255 & 0.000906 & --- \\
+Layered & int & 1000 & 8 & 255 & 0.002519 & 2.781 \\
+Layered & int & 1000 & 16 & 255 & 0.006998 & 2.778 \\
+Layered & int & 1000 & 32 & 255 & 0.010707 & 1.530 \\
+Layered & int & 1000 & 64 & 255 & 0.010630 & 0.993 \\
+\addlinespace
+Layered & int & 1000 & 4 & 511 & 0.000822 & --- \\
+Layered & int & 1000 & 8 & 511 & 0.002429 & 2.956 \\
+Layered & int & 1000 & 16 & 511 & 0.007280 & 2.998 \\
+Layered & int & 1000 & 32 & 511 & 0.011048 & 1.518 \\
+Layered & int & 1000 & 64 & 511 & 0.011367 & 1.029 \\
+\addlinespace
+Layered & int & 1000 & 4 & 1023 & 0.000925 & --- \\
+Layered & int & 1000 & 8 & 1023 & 0.002560 & 2.769 \\
+Layered & int & 1000 & 16 & 1023 & 0.007490 & 2.926 \\
+Layered & int & 1000 & 32 & 1023 & 0.012147 & 1.622 \\
+Layered & int & 1000 & 64 & 1023 & 0.011860 & 0.976 \\
+\addlinespace
+Layered & int & 1000 & 4 & 2047 & 0.000952 & --- \\
+Layered & int & 1000 & 8 & 2047 & 0.002694 & 2.830 \\
+Layered & int & 1000 & 16 & 2047 & 0.007198 & 2.671 \\
+Layered & int & 1000 & 32 & 2047 & 0.010753 & 1.494 \\
+Layered & int & 1000 & 64 & 2047 & 0.011820 & 1.099 \\
+\addlinespace
+Layered & int & 1000 & 4 & 4095 & 0.001075 & --- \\
+Layered & int & 1000 & 8 & 4095 & 0.002609 & 2.428 \\
+Layered & int & 1000 & 16 & 4095 & 0.007584 & 2.907 \\
+Layered & int & 1000 & 32 & 4095 & 0.010750 & 1.417 \\
+Layered & int & 1000 & 64 & 4095 & 0.013185 & 1.227 \\
+\addlinespace
+Layered & rational & 1000 & 4 & 1023 & 0.001542 & --- \\
+Layered & rational & 1000 & 8 & 1023 & 0.004709 & 3.054 \\
+Layered & rational & 1000 & 16 & 1023 & 0.009335 & 1.982 \\
+Layered & rational & 1000 & 32 & 1023 & 0.016032 & 1.717 \\
+Layered & rational & 1000 & 64 & 1023 & 0.017170 & 1.071 \\
+\addlinespace
+Layered & irrational & 1000 & 4 & 1023 & 0.001290 & --- \\
+Layered & irrational & 1000 & 8 & 1023 & 0.002437 & 1.889 \\
+Layered & irrational & 1000 & 16 & 1023 & 0.008110 & 3.328 \\
+Layered & irrational & 1000 & 32 & 1023 & 0.014017 & 1.728 \\
+Layered & irrational & 1000 & 64 & 1023 & 0.012580 & 0.897 \\
+\addlinespace
+Layered & unit & 1000 & 4 & 1023 & 0.000588 & --- \\
+Layered & unit & 1000 & 8 & 1023 & 0.001274 & 2.166 \\
+Layered & unit & 1000 & 16 & 1023 & 0.002360 & 1.852 \\
+Layered & unit & 1000 & 32 & 1023 & 0.003502 & 1.484 \\
+Layered & unit & 1000 & 64 & 1023 & 0.003388 & 0.967 \\
+\addlinespace
+Grid & int & 250 & 5 & 255 & 0.000066 & --- \\
+Grid & int & 500 & 5 & 255 & 0.000162 & 2.440 \\
+Grid & int & 1000 & 5 & 255 & 0.000273 & 1.686 \\
+Grid & int & 2000 & 5 & 255 & 0.000652 & 2.391 \\
+Grid & int & 4000 & 5 & 255 & 0.001222 & 1.874 \\
+\addlinespace
+Grid & int & 250 & 5 & 511 & 0.000089 & --- \\
+Grid & int & 500 & 5 & 511 & 0.000182 & 2.048 \\
+Grid & int & 1000 & 5 & 511 & 0.000302 & 1.660 \\
+Grid & int & 2000 & 5 & 511 & 0.000611 & 2.022 \\
+Grid & int & 4000 & 5 & 511 & 0.001322 & 2.165 \\
+\addlinespace
+Grid & int & 250 & 5 & 1023 & 0.000064 & --- \\
+Grid & int & 500 & 5 & 1023 & 0.000144 & 2.248 \\
+Grid & int & 1000 & 5 & 1023 & 0.000323 & 2.241 \\
+Grid & int & 2000 & 5 & 1023 & 0.000753 & 2.336 \\
+Grid & int & 4000 & 5 & 1023 & 0.002017 & 2.677 \\
+\addlinespace
+Grid & int & 250 & 5 & 2047 & 0.000052 & --- \\
+Grid & int & 500 & 5 & 2047 & 0.000189 & 3.616 \\
+Grid & int & 1000 & 5 & 2047 & 0.000295 & 1.566 \\
+Grid & int & 2000 & 5 & 2047 & 0.000589 & 1.993 \\
+Grid & int & 4000 & 5 & 2047 & 0.001924 & 3.267 \\
+\addlinespace
+Grid & int & 250 & 5 & 4095 & 0.000064 & --- \\
+Grid & int & 500 & 5 & 4095 & 0.000166 & 2.597 \\
+Grid & int & 1000 & 5 & 4095 & 0.000332 & 2.001 \\
+Grid & int & 2000 & 5 & 4095 & 0.000772 & 2.326 \\
+Grid & int & 4000 & 5 & 4095 & 0.002013 & 2.608 \\
+\addlinespace
+Grid & rational & 250 & 5 & 1023 & 0.000096 & --- \\
+Grid & rational & 500 & 5 & 1023 & 0.000207 & 2.161 \\
+Grid & rational & 1000 & 5 & 1023 & 0.000395 & 1.912 \\
+Grid & rational & 2000 & 5 & 1023 & 0.000868 & 2.195 \\
+Grid & rational & 4000 & 5 & 1023 & 0.002327 & 2.682 \\
+\addlinespace
+Grid & irrational & 250 & 5 & 1023 & 0.000104 & --- \\
+Grid & irrational & 500 & 5 & 1023 & 0.000242 & 2.322 \\
+Grid & irrational & 1000 & 5 & 1023 & 0.000337 & 1.394 \\
+Grid & irrational & 2000 & 5 & 1023 & 0.000771 & 2.288 \\
+Grid & irrational & 4000 & 5 & 1023 & 0.001688 & 2.190 \\
+\addlinespace
+Grid & unit & 250 & 5 & 1023 & 0.000049 & --- \\
+Grid & unit & 500 & 5 & 1023 & 0.000100 & 2.062 \\
+Grid & unit & 1000 & 5 & 1023 & 0.000213 & 2.131 \\
+Grid & unit & 2000 & 5 & 1023 & 0.000444 & 2.079 \\
+Grid & unit & 4000 & 5 & 1023 & 0.000813 & 1.832 \\
+\end{longtable}
+
+\bigskip
+
+\begin{longtable}{l l r r r r r}
+\caption{Risultati aggregati -- Capacity Scaling (CS), doubling su $hi$, $n$/$d$ fissi.}
+\label{tab:cs_doubling_hi} \\
+\toprule
+Tipo grafo & Capacit\`a & $n$ & $d$ & $hi$ & Tempo medio (s) & Rapporto \\
+\midrule
+\endfirsthead
+\toprule
+Tipo grafo & Capacit\`a & $n$ & $d$ & $hi$ & Tempo medio (s) & Rapporto \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+ERDAG & int & 1000 & 4 & 255 & 0.000252 & --- \\
+ERDAG & int & 1000 & 4 & 511 & 0.000253 & 1.004 \\
+ERDAG & int & 1000 & 4 & 1023 & 0.000296 & 1.169 \\
+ERDAG & int & 1000 & 4 & 2047 & 0.000239 & 0.807 \\
+ERDAG & int & 1000 & 4 & 4095 & 0.000299 & 1.251 \\
+\addlinespace
+ERDAG & int & 1000 & 8 & 255 & 0.000537 & --- \\
+ERDAG & int & 1000 & 8 & 511 & 0.000593 & 1.105 \\
+ERDAG & int & 1000 & 8 & 1023 & 0.000510 & 0.860 \\
+ERDAG & int & 1000 & 8 & 2047 & 0.000483 & 0.947 \\
+ERDAG & int & 1000 & 8 & 4095 & 0.000459 & 0.950 \\
+\addlinespace
+ERDAG & int & 1000 & 16 & 255 & 0.001101 & --- \\
+ERDAG & int & 1000 & 16 & 511 & 0.001048 & 0.951 \\
+ERDAG & int & 1000 & 16 & 1023 & 0.001246 & 1.189 \\
+ERDAG & int & 1000 & 16 & 2047 & 0.001306 & 1.048 \\
+ERDAG & int & 1000 & 16 & 4095 & 0.001300 & 0.995 \\
+\addlinespace
+ERDAG & int & 1000 & 32 & 255 & 0.004380 & --- \\
+ERDAG & int & 1000 & 32 & 511 & 0.003881 & 0.886 \\
+ERDAG & int & 1000 & 32 & 1023 & 0.003745 & 0.965 \\
+ERDAG & int & 1000 & 32 & 2047 & 0.005574 & 1.488 \\
+ERDAG & int & 1000 & 32 & 4095 & 0.003944 & 0.708 \\
+\addlinespace
+ERDAG & int & 1000 & 64 & 255 & 0.019376 & --- \\
+ERDAG & int & 1000 & 64 & 511 & 0.014132 & 0.729 \\
+ERDAG & int & 1000 & 64 & 1023 & 0.015152 & 1.072 \\
+ERDAG & int & 1000 & 64 & 2047 & 0.014753 & 0.974 \\
+ERDAG & int & 1000 & 64 & 4095 & 0.020744 & 1.406 \\
+\addlinespace
+Layered & int & 1000 & 4 & 255 & 0.000906 & --- \\
+Layered & int & 1000 & 4 & 511 & 0.000822 & 0.907 \\
+Layered & int & 1000 & 4 & 1023 & 0.000925 & 1.125 \\
+Layered & int & 1000 & 4 & 2047 & 0.000952 & 1.030 \\
+Layered & int & 1000 & 4 & 4095 & 0.001075 & 1.129 \\
+\addlinespace
+Layered & int & 1000 & 8 & 255 & 0.002519 & --- \\
+Layered & int & 1000 & 8 & 511 & 0.002429 & 0.964 \\
+Layered & int & 1000 & 8 & 1023 & 0.002560 & 1.054 \\
+Layered & int & 1000 & 8 & 2047 & 0.002694 & 1.053 \\
+Layered & int & 1000 & 8 & 4095 & 0.002609 & 0.968 \\
+\addlinespace
+Layered & int & 1000 & 16 & 255 & 0.006998 & --- \\
+Layered & int & 1000 & 16 & 511 & 0.007280 & 1.040 \\
+Layered & int & 1000 & 16 & 1023 & 0.007490 & 1.029 \\
+Layered & int & 1000 & 16 & 2047 & 0.007198 & 0.961 \\
+Layered & int & 1000 & 16 & 4095 & 0.007584 & 1.054 \\
+\addlinespace
+Layered & int & 1000 & 32 & 255 & 0.010707 & --- \\
+Layered & int & 1000 & 32 & 511 & 0.011048 & 1.032 \\
+Layered & int & 1000 & 32 & 1023 & 0.012147 & 1.099 \\
+Layered & int & 1000 & 32 & 2047 & 0.010753 & 0.885 \\
+Layered & int & 1000 & 32 & 4095 & 0.010750 & 1.000 \\
+\addlinespace
+Layered & int & 1000 & 64 & 255 & 0.010630 & --- \\
+Layered & int & 1000 & 64 & 511 & 0.011367 & 1.069 \\
+Layered & int & 1000 & 64 & 1023 & 0.011860 & 1.043 \\
+Layered & int & 1000 & 64 & 2047 & 0.011820 & 0.997 \\
+Layered & int & 1000 & 64 & 4095 & 0.013185 & 1.116 \\
+\addlinespace
+Grid & int & 250 & 5 & 255 & 0.000066 & --- \\
+Grid & int & 250 & 5 & 511 & 0.000089 & 1.339 \\
+Grid & int & 250 & 5 & 1023 & 0.000064 & 0.721 \\
+Grid & int & 250 & 5 & 2047 & 0.000052 & 0.815 \\
+Grid & int & 250 & 5 & 4095 & 0.000064 & 1.224 \\
+\addlinespace
+Grid & int & 500 & 5 & 255 & 0.000162 & --- \\
+Grid & int & 500 & 5 & 511 & 0.000182 & 1.124 \\
+Grid & int & 500 & 5 & 1023 & 0.000144 & 0.791 \\
+Grid & int & 500 & 5 & 2047 & 0.000189 & 1.311 \\
+Grid & int & 500 & 5 & 4095 & 0.000166 & 0.879 \\
+\addlinespace
+Grid & int & 1000 & 5 & 255 & 0.000273 & --- \\
+Grid & int & 1000 & 5 & 511 & 0.000302 & 1.107 \\
+Grid & int & 1000 & 5 & 1023 & 0.000323 & 1.068 \\
+Grid & int & 1000 & 5 & 2047 & 0.000295 & 0.916 \\
+Grid & int & 1000 & 5 & 4095 & 0.000332 & 1.124 \\
+\addlinespace
+Grid & int & 2000 & 5 & 255 & 0.000652 & --- \\
+Grid & int & 2000 & 5 & 511 & 0.000611 & 0.936 \\
+Grid & int & 2000 & 5 & 1023 & 0.000753 & 1.234 \\
+Grid & int & 2000 & 5 & 2047 & 0.000589 & 0.781 \\
+Grid & int & 2000 & 5 & 4095 & 0.000772 & 1.311 \\
+\addlinespace
+Grid & int & 4000 & 5 & 255 & 0.001222 & --- \\
+Grid & int & 4000 & 5 & 511 & 0.001322 & 1.082 \\
+Grid & int & 4000 & 5 & 1023 & 0.002017 & 1.526 \\
+Grid & int & 4000 & 5 & 2047 & 0.001924 & 0.954 \\
+Grid & int & 4000 & 5 & 4095 & 0.002013 & 1.047 \\
+\end{longtable}

@@ -61,7 +61,7 @@ instances_per_combo = 3
 
 [cs.grid]
 # d delle righe del grid rimane fisso (deve dividere n)
-n_values            = [1000]
+n_values            = [250, 500, 1000, 2000, 4000]
 d                   = 5
 cap_types           = ["int", "rational", "irrational", "unit"]
 instances_per_combo = 3

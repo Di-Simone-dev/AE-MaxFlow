@@ -490,6 +490,7 @@ _CS_HI_FIXED = 1023
 def _cs_combos(d_steps: list, hi_steps: list, cap_type: str):
     """
     Yield (d_val, hi_val) pairs for a given cap_type in the CS batch.
+    Used by layered and ER-DAG, which double on d (arc-degree / expected outdegree).
 
     - "int"                        → full Cartesian product d_steps × hi_steps  (25 combos)
     - "rational"/"irrational"/"unit" → doubling on d only, hi fixed to _CS_HI_FIXED   (5 combos)
@@ -503,12 +504,38 @@ def _cs_combos(d_steps: list, hi_steps: list, cap_type: str):
             yield d_val, _CS_HI_FIXED
 
 
+def _cs_combos_grid(n_steps: list, hi_steps: list, cap_type: str):
+    """
+    Yield (n_val, hi_val) pairs for grid graphs in the CS batch.
+
+    Grid topology is fully deterministic given (n, d): d only fixes the
+    row/col split, it does not control arc density like it does for
+    layered/ER-DAG. So for grid we double on n (graph size) instead of d,
+    keeping the row-count d fixed. hi doubling is preserved exactly like
+    the other graph families.
+
+    - "int"                        → full Cartesian product n_steps × hi_steps
+    - "rational"/"irrational"/"unit" → doubling on n only, hi fixed to _CS_HI_FIXED
+    """
+    if cap_type == "int":
+        for n_val in n_steps:
+            for hi_val in hi_steps:
+                yield n_val, hi_val
+    else:
+        for n_val in n_steps:
+            yield n_val, _CS_HI_FIXED
+
+
 def run_cs_batch(cfg: dict):
     """
     Capacity-scaling batch (graphs/cs).
 
-    "int" cap type: full Cartesian product d_steps × hi_steps (25 combos).
-    All other cap types: doubling on d only, hi fixed to _CS_HI_FIXED (5 combos each).
+    Layered / ER-DAG ("int" cap type): full Cartesian product d_steps × hi_steps.
+    Layered / ER-DAG (other cap types): doubling on d only, hi fixed to _CS_HI_FIXED.
+
+    Grid ("int" cap type): full Cartesian product n_steps × hi_steps.
+    Grid (other cap types): doubling on n only, hi fixed to _CS_HI_FIXED.
+    Grid's row-count d is always fixed (grd["d"]); d_steps is NOT used for grid.
     """
     outdir  = cfg["cs"]["outdir"]
     cs      = cfg["cs"]
@@ -522,12 +549,17 @@ def run_cs_batch(cfg: dict):
     grd = cs["grid"]
     er  = cs["erdag"]
 
+    # n doubling steps for grid (reuses the n_values list already used for grid in PR/AL).
+    grid_n_steps = grd["n_values"]
+
     # All cap types declared across the three graph configs (order preserved, no duplicates).
     all_cap_types = list(dict.fromkeys(
         lay["cap_types"] + grd["cap_types"] + er["cap_types"]
     ))
 
     for cap_type in all_cap_types:
+
+        # ── Layered + ER-DAG: doubling on d, hi ───────────────────────────────
         combo_idx = 0
         for d_val, hi_val in _cs_combos(d_steps, hi_steps, cap_type):
             cs_tag  = f"_d{d_val}_hi{hi_val}"
@@ -547,18 +579,6 @@ def run_cs_batch(cfg: dict):
                     cs_tag              = cs_tag,
                 )
 
-            # Grid (grid's own row-count d is fixed; cs_tag carries the arc-degree info)
-            if cap_type in grd["cap_types"]:
-                generate_all_grid_instances(
-                    n_values            = grd["n_values"],
-                    d                   = grd["d"],
-                    cap_types           = [cap_type],
-                    outdir              = outdir,
-                    instances_per_combo = grd["instances_per_combo"],
-                    capacity_config     = cap_cfg,
-                    cs_tag              = cs_tag,
-                )
-
             # ER-DAG (p derived from d_val so expected outdegree matches d_val)
             if cap_type in er["cap_types"]:
                 er_n_values = er["n_values"]
@@ -574,6 +594,27 @@ def run_cs_batch(cfg: dict):
                 )
 
             combo_idx += 1
+
+        # ── Grid: doubling on n, hi (row-count d fixed) ───────────────────────
+        if cap_type in grd["cap_types"]:
+            combo_idx = 0
+            for n_val, hi_val in _cs_combos_grid(grid_n_steps, hi_steps, cap_type):
+                cs_tag  = f"_n{n_val}_hi{hi_val}"
+                cap_cfg = build_capacity_config(lo=lo, hi=hi_val, big_int=big_int)
+
+                print(f"\n── CS [{cap_type}] grid combo {combo_idx:>2}: n={n_val}, hi={hi_val}  (tag={cs_tag}) ──")
+
+                generate_all_grid_instances(
+                    n_values            = [n_val],
+                    d                   = grd["d"],
+                    cap_types           = [cap_type],
+                    outdir              = outdir,
+                    instances_per_combo = grd["instances_per_combo"],
+                    capacity_config     = cap_cfg,
+                    cs_tag              = cs_tag,
+                )
+
+                combo_idx += 1
 
 def run_al_batch(cfg: dict, base_cap_cfg: dict):
     """

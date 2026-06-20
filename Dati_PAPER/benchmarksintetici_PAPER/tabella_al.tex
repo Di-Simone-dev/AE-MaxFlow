@@ -1,0 +1,49 @@
+\begin{longtable}{l l r r r r}
+\caption{Risultati aggregati -- Augmenting Layers (AL). Doubling su $d$ per erdag/layered ($n$ fisso), su $n$ per grid ($d$ fisso).}
+\label{tab:al_results} \\
+\toprule
+Tipo grafo & Capacit\`a & $n$ & $d$ & Tempo medio (s) & Rapporto \\
+\midrule
+\endfirsthead
+\toprule
+Tipo grafo & Capacit\`a & $n$ & $d$ & Tempo medio (s) & Rapporto \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+ERDAG & int & 20 & 0.04 & 0.156647 & --- \\
+ERDAG & int & 20 & 0.08 & 0.288358 & 1.841 \\
+ERDAG & int & 20 & 0.16 & 0.748086 & 2.594 \\
+ERDAG & int & 20 & 0.32 & 1.976042 & 2.641 \\
+ERDAG & int & 20 & 0.64 & 10.503263 & 5.315 \\
+\addlinespace
+ERDAG & unit & 20 & 0.04 & 0.013166 & --- \\
+ERDAG & unit & 20 & 0.08 & 0.032613 & 2.477 \\
+ERDAG & unit & 20 & 0.16 & 0.067257 & 2.062 \\
+ERDAG & unit & 20 & 0.32 & 0.288857 & 4.295 \\
+ERDAG & unit & 20 & 0.64 & 1.579952 & 5.470 \\
+\addlinespace
+Layered & int & 10 & 4 & 0.343478 & --- \\
+Layered & int & 10 & 8 & 0.341417 & 0.994 \\
+Layered & int & 10 & 16 & 0.339711 & 0.995 \\
+Layered & int & 10 & 32 & 0.346578 & 1.020 \\
+Layered & int & 10 & 64 & 0.342289 & 0.988 \\
+\addlinespace
+Layered & unit & 10 & 4 & 0.025679 & --- \\
+Layered & unit & 10 & 8 & 0.025120 & 0.978 \\
+Layered & unit & 10 & 16 & 0.025601 & 1.019 \\
+Layered & unit & 10 & 32 & 0.025443 & 0.994 \\
+Layered & unit & 10 & 64 & 0.025514 & 1.003 \\
+\addlinespace
+Grid & int & 5 & 5 & 0.033427 & --- \\
+Grid & int & 10 & 5 & 0.195882 & 5.860 \\
+Grid & int & 20 & 5 & 1.175805 & 6.003 \\
+Grid & int & 40 & 5 & 6.495812 & 5.525 \\
+Grid & int & 80 & 5 & 32.027383 & 4.930 \\
+\addlinespace
+Grid & unit & 5 & 5 & 0.001257 & --- \\
+Grid & unit & 10 & 5 & 0.020612 & 16.396 \\
+Grid & unit & 20 & 5 & 0.093075 & 4.516 \\
+Grid & unit & 40 & 5 & 0.513595 & 5.518 \\
+Grid & unit & 80 & 5 & 2.701556 & 5.260 \\
+\end{longtable}

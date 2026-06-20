@@ -79,11 +79,21 @@ def aggregate_pr_al(results_csv: str, output_csv: str) -> pd.DataFrame:
 
 
 # ── CS Plot 1 — Doubling di d (hi fisso) ──────────────────────────────────────
+#
+# NOTA: per graph_type == "grid" la colonna "d" del CSV intermedio contiene in
+# realtà il valore di n (ridondante col campo n, vedi fix benchmark C++ per il
+# nuovo naming "grid_n<N>_rows<R>_n<N>_hi<HI>_seed<S>"). Lo schema CSV resta
+# invariato; qui rinominiamo solo a runtime asse/etichette/nome file da "d" a
+# "n" per coerenza visiva, senza alterare la logica di raggruppamento.
 
 def plot_cs_doubling_d(df: pd.DataFrame, out_dir: str, gstyle: dict, graph_type: str, cap_type: str) -> None:
     sub = df[(df["graph_type"] == graph_type) & (df["cap_type"] == cap_type)].copy()
     if sub.empty:
         return
+
+    is_grid    = (graph_type == "grid")
+    axis_name  = "n" if is_grid else "d"
+    axis_label = "n (number of nodes)" if is_grid else "d (degree / layers)"
 
     color   = gstyle.get("color", "steelblue")
     cap_out = os.path.join(out_dir, graph_type, cap_type)
@@ -99,26 +109,33 @@ def plot_cs_doubling_d(df: pd.DataFrame, out_dir: str, gstyle: dict, graph_type:
         ax.set_xticks(sorted(data["d"].unique()))
         ax.set_xticklabels([str(int(v)) for v in sorted(data["d"].unique())])
         ax.set_title(
-            f"{gstyle.get('label_prefix', graph_type.capitalize())} [{cap_type}]  --  doubling d  (hi = {int(hi)})",
+            f"{gstyle.get('label_prefix', graph_type.capitalize())} [{cap_type}]  --  doubling {axis_name}  (hi = {int(hi)})",
             fontsize=13,
         )
-        ax.set_xlabel("d (degree / layers)", fontsize=12)
+        ax.set_xlabel(axis_label, fontsize=12)
         ax.set_ylabel("Mean time (seconds)", fontsize=12)
         ax.grid(True, linestyle="--", alpha=0.4)
         fig.tight_layout()
 
-        fname = f"{graph_type}_{cap_type}_doubling_d_hi{int(hi)}.png"
+        fname = f"{graph_type}_{cap_type}_doubling_{axis_name}_hi{int(hi)}.png"
         fig.savefig(os.path.join(cap_out, fname), dpi=150)
         plt.close(fig)
         print(f"  Salvato: {graph_type}/{cap_type}/{fname}")
 
 
 # ── CS Plot 2 — Doubling di hi (d fisso) ──────────────────────────────────────
+#
+# NOTA: per graph_type == "grid", il valore raggruppante chiamato "d" qui è in
+# realtà n (vedi nota sopra in plot_cs_doubling_d). Solo il nome file viene
+# adattato a runtime (es. "..._doubling_hi_n1000.png" invece di "..._d1000.png").
 
 def plot_cs_doubling_hi(df: pd.DataFrame, out_dir: str, gstyle: dict, graph_type: str, cap_type: str) -> None:
     sub = df[(df["graph_type"] == graph_type) & (df["cap_type"] == cap_type)].copy()
     if sub.empty or sub["hi"].nunique() < 2:
         return
+
+    is_grid   = (graph_type == "grid")
+    axis_name = "n" if is_grid else "d"
 
     color   = gstyle.get("color", "steelblue")
     cap_out = os.path.join(out_dir, graph_type, cap_type)
@@ -134,7 +151,7 @@ def plot_cs_doubling_hi(df: pd.DataFrame, out_dir: str, gstyle: dict, graph_type
         ax.set_xticks(sorted(data["hi"].unique()))
         ax.set_xticklabels([str(int(v)) for v in sorted(data["hi"].unique())])
         ax.set_title(
-            f"{gstyle.get('label_prefix', graph_type.capitalize())} [{cap_type}]  --  doubling hi  (d = {int(d)})",
+            f"{gstyle.get('label_prefix', graph_type.capitalize())} [{cap_type}]  --  doubling hi  ({axis_name} = {int(d)})",
             fontsize=13,
         )
         ax.set_xlabel("hi (max capacity)", fontsize=12)
@@ -142,7 +159,7 @@ def plot_cs_doubling_hi(df: pd.DataFrame, out_dir: str, gstyle: dict, graph_type
         ax.grid(True, linestyle="--", alpha=0.4)
         fig.tight_layout()
 
-        fname = f"{graph_type}_{cap_type}_doubling_hi_d{int(d)}.png"
+        fname = f"{graph_type}_{cap_type}_doubling_hi_{axis_name}{int(d)}.png"
         fig.savefig(os.path.join(cap_out, fname), dpi=150)
         plt.close(fig)
         print(f"  Salvato: {graph_type}/{cap_type}/{fname}")
