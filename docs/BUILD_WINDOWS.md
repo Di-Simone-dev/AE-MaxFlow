@@ -51,7 +51,7 @@ L'eseguibile risultante sarà disponibile nella directory principale del progett
 Esempio di esecuzione con parametri:
 
 ```powershell
-.\maxflow.exe -pr -SINTH
+.\maxflow.exe -fullsuite
 ```
 
 ## 8. Aggregazione dati e generazione grafici

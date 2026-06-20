@@ -53,15 +53,15 @@ cmake -S . -B build -G "Unix Makefiles"
 cmake --build ./build
 ```
 
-L'eseguibile risultante sarà disponibile nella directory `build` (a meno che il `CMakeLists.txt` non specifichi diversamente).
+L'eseguibile risultante sarà disponibile nella directory radice
 
 ## 7. Esecuzione dell'algoritmo MaxFlow
 
 Assicurati che l'eseguibile abbia i permessi di esecuzione, poi avvialo:
 
 ```bash
-chmod +x ./build/maxflow
-./build/maxflow -pr -SINTH
+chmod +x maxflow
+./maxflow -fullsuite
 ```
 
 ## 8. Aggregazione dati e generazione grafici
