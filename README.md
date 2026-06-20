@@ -25,9 +25,6 @@ AE-MaxFlow/
 │   └── configmain.toml         # config per l'eseguibile C++ (flag, percorsi CSV, dataset reali)
 │
 ├── docs/
-│   ├── BUILD_LINUX.md          # guida di build/esecuzione (Linux)
-│   ├── BUILD_WINDOWS.md        # guida di build/esecuzione (Windows, MinGW)
-│   ├── doxygen.txt             # configurazione Doxygen
 │   └── html/                   # documentazione generata da Doxygen
 │
 ├── Eigen/                      # libreria header-only di terze parti (dipendenza)
