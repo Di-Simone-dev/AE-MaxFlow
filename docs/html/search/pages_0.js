@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['maxflow_20project_0',['MaxFlow Project',['../index.html',1,'']]]
+  ['ae_2dmaxflow_0',['AE-MaxFlow',['../index.html',1,'']]]
 ];

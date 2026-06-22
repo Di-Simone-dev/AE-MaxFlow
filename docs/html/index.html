@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.7"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Max Flow - a practical approach: MaxFlow Project</title>
+<title>Max Flow - a practical approach: AE-MaxFlow</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -69,31 +69,154 @@ $(function() {
 </div>
 
 <div><div class="header">
-  <div class="headertitle"><div class="title">MaxFlow Project </div></div>
+  <div class="headertitle"><div class="title">AE-MaxFlow </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md__r_e_a_d_m_e"></a> Implementazione dell'algoritmo di Max Flow in C++, con generazione dei grafi di test tramite script Python.</p>
+<div class="textblock"><p><a class="anchor" id="md__r_e_a_d_m_e"></a> Implementazione e benchmarking sperimentale di tre algoritmi di <b>flusso massimo</b> su grafi in formato DIMACS (<code>.max</code>):</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Algoritmo   </th><th class="markdownTableHeadNone">Flag CLI    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Push-Relabel   </td><td class="markdownTableBodyNone"><code>-pr</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Capacity Scaling   </td><td class="markdownTableBodyNone"><code>-cs</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Almost Linear Time (min-cost-flow based)   </td><td class="markdownTableBodyNone"><code>-al</code>   </td></tr>
+</table>
+<p>Il progetto è composto da un motore C++ ad alte prestazioni per l'esecuzione degli algoritmi e da una pipeline Python per la generazione dei grafi di test, l'aggregazione dei risultati e la produzione di grafici/tabelle LaTeX per l'analisi sperimentale.</p>
 <h1>Struttura del progetto</h1>
+<div class="fragment"><div class="line">AE-MaxFlow/</div>
+<div class="line">├── CMakeLists.txt              # build system (eseguibile &quot;maxflow&quot;)</div>
+<div class="line">├── requirements.txt            # dipendenze Python</div>
+<div class="line">├── graphgenerator.py           # generatore di grafi di test (DIMACS .max)</div>
+<div class="line">├── aggregate_and_plot.py       # aggregazione CSV + generazione grafici</div>
+<div class="line">├── Report_sperimentale_Algorithm_Engineering.pdf</div>
+<div class="line">│</div>
+<div class="line">├── configs/</div>
+<div class="line">│   ├── config.toml             # config per gli script Python (graphgenerator / aggregate_and_plot)</div>
+<div class="line">│   └── configmain.toml         # config per l&#39;eseguibile C++ (flag, percorsi CSV, dataset reali)</div>
+<div class="line">│</div>
+<div class="line">├── docs/</div>
+<div class="line">│   └── html/                   # documentazione generata da Doxygen</div>
+<div class="line">│</div>
+<div class="line">├── Eigen/                      # libreria header-only di terze parti (dipendenza)</div>
+<div class="line">├── build/                      # output di CMake</div>
+<div class="line">│</div>
+<div class="line">├── src/</div>
+<div class="line">│   ├── main.cpp                # entry point, parsing CLI, orchestrazione benchmark</div>
+<div class="line">│   ├── push_relabel/           # algoritmo Push-Relabel</div>
+<div class="line">│   ├── capacity_scaling/       # algoritmo Capacity Scaling</div>
+<div class="line">│   ├── almost_linear/          # algoritmo Almost Linear Time (+ min-cost-flow, Howard, feasible flow)</div>
+<div class="line">│   └── util/                   # parser DIMACS, capacità razionali (Fraction), scalatura, hashing</div>
+<div class="line">│</div>
+<div class="line">└── Dati_PAPER/                  # dataset e risultati usati nel report sperimentale</div>
+<div class="line">    ├── graphs_PAPER/             # istanze .max usate per generare i risultati del paper</div>
+<div class="line">    ├── benchmarksintetici_PAPER/ # CSV grezzi/aggregati + tabelle .tex (tables.py)</div>
+<div class="line">    └── plots_PAPER/              # grafici .png per algoritmo/topologia/tipo di capacità</div>
+<div class="line"> </div>
+<div class="line"># Directory generate a runtime (non versionate, vedi .gitignore):</div>
+<div class="line">#   graphs/, benchmarksingoli/, benchmarksintetici/, benchmarkBVZ/, benchmarkKZ2/, plots/</div>
+</div><!-- fragment --><h1>Funzionalità</h1>
 <ul>
-<li><code>graphgenerator.py</code> — script Python per la generazione dei grafi usati come input dell'algoritmo.</li>
-<li><code>requirements.txt</code> — dipendenze Python necessarie per eseguire lo script di generazione.</li>
-<li><code>CMakeLists.txt</code> — configurazione CMake per la compilazione del codice C++.</li>
-<li>Codice sorgente C++ dell'algoritmo di Max Flow.</li>
+<li><b>Tre algoritmi di flusso massimo</b> intercambiabili da riga di comando: Push-Relabel, Capacity Scaling, Almost Linear Time.</li>
+<li><b>Gestione di capacità eterogenee</b>: intere, razionali (<code>Fraction</code>, scalate tramite MCM dei denominatori) e irrazionali/double (gestite con eps numerico). L'algoritmo Almost Linear Time supporta solo capacità intere.</li>
+<li><b>Quattro modalità di esecuzione</b>:<ul>
+<li>singolo file <code>.max</code>;</li>
+<li>dataset reali DIMACS (BVZ-tsukuba, KZ2-venus), con verifica di correttezza rispetto al file <code>.sol</code> quando disponibile;</li>
+<li>dataset sintetici (grafi <code>layered</code>, <code>grid</code>, Erdős–Rényi DAG <code>erdag</code>), con misurazione su più run (scarto del warmup, calcolo della mediana);</li>
+<li><code>-fullsuite</code>: esegue automaticamente tutti gli algoritmi su tutte le directory di istanze sintetiche configurate.</li>
 </ul>
-<h1>Requisiti</h1>
+</li>
+<li><b>Output CSV</b> con intestazioni dedicate per ciascuna modalità (numero nodi/archi, tempo in secondi con 17 cifre decimali, flusso calcolato, file grafo, correttezza).</li>
+<li><b>Configurazione esterna via TOML</b> (<code>configs/configmain.toml</code>): flag CLI, percorsi dei CSV di output, directory delle istanze sintetiche e metadati dei dataset reali (con fallback hardcoded se assenti).</li>
+<li><b>Pipeline Python complementare</b>:<ul>
+<li><code>graphgenerator.py</code>: genera le famiglie di grafi sintetici (layered, grid, Erdős–Rényi DAG) con capacità intere/unitarie/razionali/irrazionali, configurabile tramite <code>configs/config.toml</code>;</li>
+<li><code>aggregate_and_plot.py</code>: aggrega i CSV di output (media/mediana dei tempi) e produce i grafici di scalabilità, con logica differenziata per Capacity Scaling rispetto a Push-Relabel/Almost Linear Time;</li>
+<li><code>Dati_PAPER/benchmarksintetici_PAPER/tables.py</code>: genera le tabelle LaTeX dei risultati a partire dai CSV aggregati.</li>
+</ul>
+</li>
+<li><b>Documentazione tecnica</b> generata con Doxygen (<code>docs/html/</code>).</li>
+</ul>
+<h1>Argomenti da riga di comando</h1>
+<p>L'eseguibile <code>maxflow</code> accetta un flag dell'algoritmo e, salvo per <code>-fullsuite</code>, un secondo argomento che indica la modalità/il target:</p>
+<div class="fragment"><div class="line">./maxflow &lt;flag_algoritmo&gt; &lt;dataset|file.max&gt;</div>
+<div class="line">./maxflow -fullsuite</div>
+</div><!-- fragment --><p><b>Flag dell'algoritmo</b> (definiti in <code>configs/configmain.toml</code>, sezione <code>[algs]</code>):</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Flag   </th><th class="markdownTableHeadNone">Algoritmo selezionato    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-pr</code>   </td><td class="markdownTableBodyNone">Push-Relabel    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-cs</code>   </td><td class="markdownTableBodyNone">Capacity Scaling    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-al</code>   </td><td class="markdownTableBodyNone">Almost Linear Time   </td></tr>
+</table>
+<p><b>Secondo argomento</b> (modalità di esecuzione):</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Argomento   </th><th class="markdownTableHeadNone">Effetto    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-BVZ</code>   </td><td class="markdownTableBodyNone">Benchmark sul dataset reale BVZ-tsukuba (16 istanze)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>-KZ2</code>   </td><td class="markdownTableBodyNone">Benchmark sul dataset reale KZ2-venus (22 istanze)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-SINTH</code>   </td><td class="markdownTableBodyNone">Benchmark sulle istanze sintetiche configurate per l'algoritmo selezionato (<code>layered</code>, <code>grid</code>, <code>erdag</code>)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>&lt;percorso.max&gt;</code>   </td><td class="markdownTableBodyNone">Esegue l'algoritmo su un singolo file DIMACS <code>.max</code>   </td></tr>
+</table>
+<p><b>Modalità speciale</b> (nessun secondo argomento):</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Argomento   </th><th class="markdownTableHeadNone">Effetto    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>-fullsuite</code>   </td><td class="markdownTableBodyNone">Esegue tutti gli algoritmi configurati su tutte le directory di istanze sintetiche (<code>[instances_dir]</code> in <code>configmain.toml</code>)   </td></tr>
+</table>
+<h2>Esempi</h2>
+<div class="fragment"><div class="line"># Push-Relabel su un singolo file</div>
+<div class="line">./maxflow -pr graphs/pr/int/layered_n1000_d6/layered_n1000_d6_seed0.max</div>
+<div class="line"> </div>
+<div class="line"># Capacity Scaling sul dataset reale KZ2-venus</div>
+<div class="line">./maxflow -cs -KZ2</div>
+<div class="line"> </div>
+<div class="line"># Almost Linear Time sulle istanze sintetiche configurate per &quot;al&quot;</div>
+<div class="line">./maxflow -al -SINTH</div>
+<div class="line"> </div>
+<div class="line"># Tutti gli algoritmi su tutti i dataset sintetici</div>
+<div class="line">./maxflow -fullsuite</div>
+</div><!-- fragment --><h1>Requisiti</h1>
 <ul>
-<li>Python 3.x con <code>venv</code></li>
-<li>CMake</li>
-<li>Un compilatore C++ (MinGW su Windows, GCC/Clang su Linux)</li>
+<li>Python 3.x con <code>venv</code> (lo script di generazione usa <code>tomllib</code>, quindi richiede Python ≥ 3.11)</li>
+<li>CMake ≥ 3.16</li>
+<li>Un compilatore C++17 (MinGW su Windows, GCC/Clang su Linux)</li>
 </ul>
+<p>Dipendenze Python (<code>requirements.txt</code>): <code>numpy</code>, <code>pandas</code>, <code>matplotlib</code>, <code>pillow</code>, e relative dipendenze indirette (<code>contourpy</code>, <code>cycler</code>, <code>fonttools</code>, <code>kiwisolver</code>, <code>packaging</code>, <code>pyparsing</code>, <code>python-dateutil</code>, <code>six</code>, <code>tzdata</code>).</p>
 <h1>Guide di build ed esecuzione</h1>
-<p>Le istruzioni dettagliate per la generazione dei grafi, la compilazione e l'esecuzione dell'algoritmo sono disponibili nelle guide dedicate per ciascun sistema operativo:</p>
+<p>Istruzioni dettagliate per generazione dei grafi, compilazione ed esecuzione:</p>
 <ul>
-<li>Guida per Windows</li>
 <li>Guida per Linux</li>
+<li>Guida per Windows</li>
 </ul>
 <h1>Esecuzione rapida</h1>
-<p>In sintesi, il flusso di lavoro tipico prevede: creazione e attivazione di un ambiente virtuale Python, installazione delle dipendenze, generazione dei grafi, configurazione e compilazione del progetto C++ con CMake, ed esecuzione dell'eseguibile risultante con i parametri desiderati (es. <code>-pr -SINTH</code>). </p>
+<div class="fragment"><div class="line"># 1. Ambiente Python</div>
+<div class="line">python3 -m venv venv</div>
+<div class="line">source venv/bin/activate          # Windows: .\venv\Scripts\activate</div>
+<div class="line">pip install -r requirements.txt</div>
+<div class="line"> </div>
+<div class="line"># 2. Generazione dei grafi di test</div>
+<div class="line">python3 graphgenerator.py</div>
+<div class="line"> </div>
+<div class="line"># 3. Build C++ (CMake)</div>
+<div class="line">cmake -S . -B build -G &quot;Unix Makefiles&quot;   # Windows: -G &quot;MinGW Makefiles&quot;</div>
+<div class="line">cmake --build ./build</div>
+<div class="line"> </div>
+<div class="line"># 4. Esecuzione del benchmark</div>
+<div class="line">./maxflow -fullsuite                       # oppure -pr/-cs/-al con -BVZ, -KZ2, -SINTH o un file .max</div>
+<div class="line"> </div>
+<div class="line"># 5. Aggregazione dei risultati e generazione dei grafici</div>
+<div class="line">python3 aggregate_and_plot.py</div>
+</div><!-- fragment --><h1>Documentazione tecnica</h1>
+<p>La documentazione del codice C++ (classi, funzioni, formati dei file) è generata con Doxygen e disponibile in <code>docs/html/index.html</code>. </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
